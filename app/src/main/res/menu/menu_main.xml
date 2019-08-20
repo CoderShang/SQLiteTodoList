@@ -2,14 +2,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.shang.todolist.MainActivity">
+
     <item
-        android:id="@+id/action_update"
-        android:icon="@drawable/ic_refresh"
-        android:title="刷新"
+        android:id="@+id/action_sort"
+        android:icon="@drawable/ic_sort"
+        android:title="排序"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_condition"
-        android:icon="@drawable/ic_condition"
+        android:icon="@drawable/ic_settings"
         android:title="筛选"
         app:showAsAction="ifRoom" />
     <item
