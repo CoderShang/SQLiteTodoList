@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SQLiteTodoList</string>
+    <string name="action_settings">Settings</string>
+</resources>

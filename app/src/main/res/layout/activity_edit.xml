@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="新增一个待办"
+        app:titleTextColor="#ffffff" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/et_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_edit_bg"
+            android:hint="待办标题..."
+            android:padding="10dp"
+            android:singleLine="true"
+            android:textColor="#000000"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/et_desc"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_below="@id/et_title"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/shape_edit_bg"
+            android:gravity="top"
+            android:hint="待办事项描述..."
+            android:padding="10dp"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_alarm"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_below="@id/et_desc"
+            android:layout_alignParentRight="true"
+            android:drawableLeft="@drawable/ic_add_alarm"
+            android:drawablePadding="3dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:text="添加提醒"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
+        <CheckBox
+            android:id="@+id/cb_mark"
+            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_below="@id/et_desc"
+            android:text="标记为重要"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
+    </RelativeLayout>
+</LinearLayout>
