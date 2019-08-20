@@ -38,13 +38,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.action_update:
-                        Snackbar.make(root_layout, "刷新", Snackbar.LENGTH_LONG).show();
+                    case R.id.action_sort:
+                        Snackbar.make(root_layout, "排序", Snackbar.LENGTH_LONG).show();
                         break;
-                    case R.id.action_condition:
-                        Snackbar.make(root_layout, "筛选", Snackbar.LENGTH_LONG).show();
+                    case R.id.action_query:
+                        Snackbar.make(root_layout, "查询", Snackbar.LENGTH_LONG).show();
                         break;
-                    case R.id.action_send:
+                    case R.id.action_settings:
+                        Snackbar.make(root_layout, "设置", Snackbar.LENGTH_LONG).show();
+                        break;
+                    case R.id.action_help:
                         Intent intent = new Intent();
                         intent.setAction("android.intent.action.VIEW");
                         Uri content_url = Uri.parse("https://github.com/CoderShang");

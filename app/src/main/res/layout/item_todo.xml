@@ -33,21 +33,23 @@
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/ic_mark"
                 android:drawablePadding="3dp"
+                android:gravity="center_vertical"
                 android:singleLine="true"
                 android:textColor="#000000"
-                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textSize="16sp"
                 tools:text="标题1111" />
 
             <TextView
                 android:id="@+id/tv_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:drawableLeft="@drawable/ic_desc"
-                android:drawablePadding="3dp"
+                android:layout_marginTop="3dp"
+                android:gravity="center_vertical"
                 android:singleLine="true"
                 android:textColor="#999999"
-                android:textSize="16sp"
+                android:visibility="gone"
+                android:textSize="12sp"
                 tools:text="代办详情hahahahah代办详情hahahahah代办详情hahahahah代办详情hahahahah" />
         </LinearLayout>
 

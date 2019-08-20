@@ -7,15 +7,46 @@
         android:id="@+id/action_sort"
         android:icon="@drawable/ic_sort"
         android:title="排序"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
     <item
-        android:id="@+id/action_condition"
-        android:icon="@drawable/ic_settings"
-        android:title="筛选"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/action_query"
+        android:icon="@drawable/ic_query"
+        android:title="查询"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/action_1"
+                android:icon="@drawable/ic_settings"
+                android:title="全部待办"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_2"
+                android:icon="@drawable/ic_settings"
+                android:title="进行中"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_3"
+                android:icon="@drawable/ic_settings"
+                android:title="已办事项"
+                app:showAsAction="never" />
+        </menu>
+    </item>
     <item
-        android:id="@+id/action_send"
-        android:icon="@drawable/ic_send"
-        android:title="GitHub"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/action_more"
+        android:icon="@drawable/ic_more"
+        android:title="更多"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/action_settings"
+                android:icon="@drawable/ic_settings"
+                android:title="设置"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_help"
+                android:icon="@drawable/ic_help"
+                android:title="帮助"
+                app:showAsAction="never" />
+        </menu>
+    </item>
 </menu>

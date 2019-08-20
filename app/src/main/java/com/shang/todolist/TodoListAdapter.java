@@ -48,7 +48,13 @@ public class TodoListAdapter extends BaseQuickAdapter<TodoListBean, BaseViewHold
         } else {
             cb_status.setEnabled(false);
         }
-        helper.setText(R.id.tv_desc, item.description);
+        if (TextUtils.isEmpty(item.description)) {
+            helper.setGone(R.id.tv_desc, false);
+        } else {
+            helper.setGone(R.id.tv_desc, true);
+            helper.setText(R.id.tv_desc, item.description);
+        }
+
 
 //        item.getAlarm()
 //        item.getStatus()

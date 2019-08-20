@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.Date;
@@ -26,6 +27,7 @@ public class EditActivity extends AppCompatActivity {
     private EditText et_title, et_desc;
     private TextView tv_alarm;
     private CheckBox cb_mark;
+    private RelativeLayout top_layout;
     private LinearLayout root_layout;
     private int searchId; //主键ID，0说明是新添加，有值则编辑
 
@@ -40,6 +42,7 @@ public class EditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
         mToolbar = findViewById(R.id.toolbar);
+        top_layout = findViewById(R.id.top_layout);
         root_layout = findViewById(R.id.root_layout);
         et_title = findViewById(R.id.et_title);
         et_desc = findViewById(R.id.et_desc);
