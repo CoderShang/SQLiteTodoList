@@ -46,21 +46,18 @@ public class TodoListAdapter extends BaseQuickAdapter<TodoListBean, BaseViewHold
         }
         helper.setGone(R.id.iv_drag, false);
         helper.setGone(R.id.iv_delete, false);
+        cb_status.setVisibility(View.VISIBLE);
         if (isDelete) {
             helper.setGone(R.id.iv_delete, true);
             isSort = false;
             iv_alarm.setVisibility(View.GONE);
             cb_status.setVisibility(View.GONE);
-        } else {
-            cb_status.setVisibility(View.VISIBLE);
         }
         if (isSort) {
             helper.setGone(R.id.iv_drag, true);
             isDelete = false;
             iv_alarm.setVisibility(View.GONE);
             cb_status.setVisibility(View.GONE);
-        } else {
-            cb_status.setVisibility(View.VISIBLE);
         }
         if (item.alarm == 0) {
             iv_alarm.setVisibility(View.GONE);
