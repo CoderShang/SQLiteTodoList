@@ -1,6 +1,7 @@
 package com.shang.todolist;
 
-import android.content.res.Resources;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class UiUtils {
 
@@ -16,11 +17,10 @@ public class UiUtils {
         return (int) (dpValue * scale + 0.5f);
     }
 
-    /**
-     * 获得资源
-     */
-    public static Resources getResources() {
-        return App.get().getResources();
+    public static String getDateStr(long time) {
+        String format = "MM-dd HH:mm";
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        return sdf.format(new Date(time));
     }
 
 }

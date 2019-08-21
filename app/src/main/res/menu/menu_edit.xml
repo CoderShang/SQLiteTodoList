@@ -9,7 +9,7 @@
         android:visible="false"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_update"
+        android:id="@+id/action_done"
         android:icon="@drawable/ic_done"
         android:title="完成"
         app:showAsAction="always" />

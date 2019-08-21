@@ -5,11 +5,12 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.shang.todolist.db.TodoListBean;
 
 import java.util.List;
 
@@ -18,6 +19,8 @@ import java.util.List;
  */
 public class TodoListAdapter extends BaseQuickAdapter<TodoListBean, BaseViewHolder> {
     private Drawable drawable;
+    public boolean isDelete;
+    public boolean isSort;
 
     public TodoListAdapter(@Nullable List<TodoListBean> data) {
         super(R.layout.item_todo, data);
@@ -27,18 +30,44 @@ public class TodoListAdapter extends BaseQuickAdapter<TodoListBean, BaseViewHold
     @Override
     protected void convert(final BaseViewHolder helper, TodoListBean item) {
         TextView tv_title = helper.getView(R.id.tv_title);
-        ImageButton ib_alarm = helper.getView(R.id.ib_alarm);
+        ImageView iv_alarm = helper.getView(R.id.iv_alarm);
         CheckBox cb_status = helper.getView(R.id.cb_status);
         tv_title.setText(item.title);
         if (item.mark == 1) {
-            tv_title.setCompoundDrawables(drawable, null, null, null);
+            tv_title.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
         } else {
-            tv_title.setCompoundDrawables(null, null, null, null);
+            tv_title.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
         }
-        if (TextUtils.isEmpty(item.alarm)) {
-            ib_alarm.setVisibility(View.GONE);
+        if (TextUtils.isEmpty(item.description)) {
+            helper.setGone(R.id.tv_desc, false);
         } else {
-            ib_alarm.setVisibility(View.VISIBLE);
+            helper.setGone(R.id.tv_desc, true);
+            helper.setText(R.id.tv_desc, item.description);
+        }
+        helper.setGone(R.id.iv_drag, false);
+        helper.setGone(R.id.iv_delete, false);
+        if (isDelete) {
+            helper.setGone(R.id.iv_delete, true);
+            isSort = false;
+            iv_alarm.setVisibility(View.GONE);
+            cb_status.setVisibility(View.GONE);
+        } else {
+            cb_status.setVisibility(View.VISIBLE);
+        }
+        if (isSort) {
+            helper.setGone(R.id.iv_drag, true);
+            isDelete = false;
+            iv_alarm.setVisibility(View.GONE);
+            cb_status.setVisibility(View.GONE);
+        } else {
+            cb_status.setVisibility(View.VISIBLE);
+        }
+        if (item.alarm == 0) {
+            iv_alarm.setVisibility(View.GONE);
+        } else {
+            if (!isDelete && !isSort) {
+                iv_alarm.setVisibility(View.VISIBLE);
+            }
         }
         cb_status.setEnabled(true);
         if (item.status == 0) {
@@ -48,15 +77,18 @@ public class TodoListAdapter extends BaseQuickAdapter<TodoListBean, BaseViewHold
         } else {
             cb_status.setEnabled(false);
         }
-        if (TextUtils.isEmpty(item.description)) {
-            helper.setGone(R.id.tv_desc, false);
-        } else {
-            helper.setGone(R.id.tv_desc, true);
-            helper.setText(R.id.tv_desc, item.description);
-        }
+        helper.addOnClickListener(R.id.iv_drag);
+        helper.addOnClickListener(R.id.iv_delete);
+        helper.addOnClickListener(R.id.cb_status);
+    }
 
+    public void setDelete() {
+        isDelete = !isDelete;
+        notifyDataSetChanged();
+    }
 
-//        item.getAlarm()
-//        item.getStatus()
+    public void setSort() {
+        isSort = !isSort;
+        notifyDataSetChanged();
     }
 }
