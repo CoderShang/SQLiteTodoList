@@ -49,13 +49,11 @@ public class TodoListAdapter extends BaseQuickAdapter<TodoListBean, BaseViewHold
         cb_status.setVisibility(View.VISIBLE);
         if (isDelete) {
             helper.setGone(R.id.iv_delete, true);
-            isSort = false;
             iv_alarm.setVisibility(View.GONE);
             cb_status.setVisibility(View.GONE);
         }
         if (isSort) {
             helper.setGone(R.id.iv_drag, true);
-            isDelete = false;
             iv_alarm.setVisibility(View.GONE);
             cb_status.setVisibility(View.GONE);
         }
@@ -81,11 +79,13 @@ public class TodoListAdapter extends BaseQuickAdapter<TodoListBean, BaseViewHold
 
     public void setDelete() {
         isDelete = !isDelete;
+        isSort = false;
         notifyDataSetChanged();
     }
 
     public void setSort() {
         isSort = !isSort;
+        isDelete = false;
         notifyDataSetChanged();
     }
 }
