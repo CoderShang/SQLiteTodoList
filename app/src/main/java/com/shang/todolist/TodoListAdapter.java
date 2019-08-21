@@ -8,6 +8,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.chad.library.adapter.base.BaseItemDraggableAdapter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.shang.todolist.db.TodoListBean;
@@ -17,10 +18,8 @@ import java.util.List;
 /**
  * 待办列表的适配器
  */
-public class TodoListAdapter extends BaseQuickAdapter<TodoListBean, BaseViewHolder> {
+public class TodoListAdapter extends BaseItemDraggableAdapter<TodoListBean, BaseViewHolder> {
     private Drawable drawable;
-    public boolean isDelete;
-    public boolean isSort;
 
     public TodoListAdapter(@Nullable List<TodoListBean> data) {
         super(R.layout.item_todo, data);
@@ -44,25 +43,10 @@ public class TodoListAdapter extends BaseQuickAdapter<TodoListBean, BaseViewHold
             helper.setGone(R.id.tv_desc, true);
             helper.setText(R.id.tv_desc, item.description);
         }
-        helper.setGone(R.id.iv_drag, false);
-        helper.setGone(R.id.iv_delete, false);
-        cb_status.setVisibility(View.VISIBLE);
-        if (isDelete) {
-            helper.setGone(R.id.iv_delete, true);
-            iv_alarm.setVisibility(View.GONE);
-            cb_status.setVisibility(View.GONE);
-        }
-        if (isSort) {
-            helper.setGone(R.id.iv_drag, true);
-            iv_alarm.setVisibility(View.GONE);
-            cb_status.setVisibility(View.GONE);
-        }
         if (item.alarm == 0) {
             iv_alarm.setVisibility(View.GONE);
         } else {
-            if (!isDelete && !isSort) {
-                iv_alarm.setVisibility(View.VISIBLE);
-            }
+            iv_alarm.setVisibility(View.VISIBLE);
         }
         cb_status.setEnabled(true);
         if (item.status == 0) {
@@ -72,20 +56,6 @@ public class TodoListAdapter extends BaseQuickAdapter<TodoListBean, BaseViewHold
         } else {
             cb_status.setEnabled(false);
         }
-        helper.addOnClickListener(R.id.iv_drag);
-        helper.addOnClickListener(R.id.iv_delete);
         helper.addOnClickListener(R.id.cb_status);
-    }
-
-    public void setDelete() {
-        isDelete = !isDelete;
-        isSort = false;
-        notifyDataSetChanged();
-    }
-
-    public void setSort() {
-        isSort = !isSort;
-        isDelete = false;
-        notifyDataSetChanged();
     }
 }

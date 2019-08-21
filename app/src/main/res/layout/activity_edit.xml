@@ -4,6 +4,7 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg"
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
@@ -20,8 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="16dp">
+        android:paddingTop="16dp"
+        android:paddingRight="16dp">
 
         <EditText
             android:id="@+id/et_title"
@@ -31,9 +32,9 @@
             android:hint="待办标题..."
             android:padding="10dp"
             android:singleLine="true"
-            android:textStyle="bold"
             android:textColor="#000000"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/et_desc"
@@ -69,6 +70,7 @@
             android:layout_height="50dp"
             android:layout_below="@id/et_desc"
             android:text="标记为重要"
+            android:layout_marginLeft="-6dp"
             android:textColor="#000000"
             android:textSize="16sp" />
 
