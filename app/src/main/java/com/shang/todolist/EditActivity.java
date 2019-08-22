@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -32,10 +33,9 @@ import java.util.Date;
 /**
  * 新增 & 编辑 待办事项的页面
  */
-public class EditActivity extends AppCompatActivity {
+public class EditActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String KEY_ID = "ID";
     public static final String KEY_MAX_ID = "MAX_ID";
-    private Toolbar mToolbar;
     private EditText et_title, et_desc;
     private TextView tv_alarm;
     private CheckBox cb_mark;
@@ -45,6 +45,7 @@ public class EditActivity extends AppCompatActivity {
     private int maxId = -1; //添加orderId时，直接+1
     private TodoListBean mTodoBean;
     private Runnable queryTask;
+    private InputMethodManager manager;
 
     public static void startActivity(Context context, int searchId, int maxId) {
         Intent intent = new Intent(context, EditActivity.class);
@@ -75,49 +76,42 @@ public class EditActivity extends AppCompatActivity {
             return false;
         }
     });
+    private TextView bar_title;
+    private ImageView bar_back, bar_first, bar_second;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
-        mToolbar = findViewById(R.id.toolbar);
+        bar_title = findViewById(R.id.bar_title);
+        bar_back = findViewById(R.id.bar_back);
+        bar_first = findViewById(R.id.bar_first);
+        bar_second = findViewById(R.id.bar_second);
         top_layout = findViewById(R.id.top_layout);
         root_layout = findViewById(R.id.root_layout);
         et_title = findViewById(R.id.et_title);
         et_desc = findViewById(R.id.et_desc);
         tv_alarm = findViewById(R.id.tv_alarm);
         cb_mark = findViewById(R.id.cb_mark);
-        setSupportActionBar(mToolbar);
+        bar_back.setOnClickListener(this);
+        bar_first.setOnClickListener(this);
+        bar_second.setOnClickListener(this);
         Intent intent = getIntent();
         if (intent != null) {
             searchId = intent.getIntExtra(KEY_ID, -1);
             maxId = intent.getIntExtra(KEY_MAX_ID, 0);
         }
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-        //设置点击事件
-        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_delete:
-                        deleteValue(searchId);
-                        break;
-                    case R.id.action_done:
-                        submit();
-                        break;
-                    default:
-                }
-                return false;
-            }
-        });
+        if (searchId != -1) {
+            bar_title.setText("编辑");
+            bar_second.setVisibility(View.VISIBLE);
+        } else {
+            bar_title.setText("新增一个待办");
+            bar_second.setVisibility(View.GONE);
+        }
         if (searchId != -1) {
             queryValue(searchId);
         }
+        manager = ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE));
     }
 
     /**
@@ -237,28 +231,27 @@ public class EditActivity extends AppCompatActivity {
         if (queryTask != null) {
             DbThreadPool.getThreadPool().cancel(queryTask);
         }
+        if (manager != null)
+            manager.hideSoftInputFromWindow(et_title.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        manager = null;
         super.onDestroy();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_edit, menu);
-
-        if (searchId != -1) {
-            mToolbar.setTitle("编辑");
-            menu.findItem(R.id.action_delete).setVisible(true);
-        } else {
-            mToolbar.setTitle("新增一个待办");
-            menu.findItem(R.id.action_delete).setVisible(false);
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.bar_back:
+                finish();
+                break;
+            case R.id.bar_first:
+                submit();
+                break;
+            case R.id.bar_second:
+                deleteValue(searchId);
+                break;
+            default:
+                break;
         }
-        return true;
-    }
 
-    @Override
-    public void finish() {
-        InputMethodManager manager = ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE));
-        if (manager != null)
-            manager.hideSoftInputFromWindow(et_title.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        super.finish();
     }
 }

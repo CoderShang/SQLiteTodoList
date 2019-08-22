@@ -12,6 +12,9 @@ public class DbOpenHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "todo_list.db";
     public static final int DB_VERSION = 1;
     public static final String TABLE_TODOLIST = "TODOLIST";
+    public static final String TABLE_FOLDER = "FOLDER";
+    public static final String TABLE_PLAN = "PLAN";
+    public static final String TABLE_ALARM = "ALARM";
 
     private static DbOpenHelper helper;
 

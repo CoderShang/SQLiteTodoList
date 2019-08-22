@@ -25,7 +25,7 @@ public final class TodoListContract {
 
         String _ID = "_ID";
         /**
-         * 用与排序的ID
+         * 用于排序的ID
          */
         String FRONT_ID = "FRONT_ID";
         String BEHIND_ID = "BEHIND_ID";

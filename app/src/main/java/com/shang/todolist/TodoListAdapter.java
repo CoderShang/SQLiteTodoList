@@ -55,6 +55,6 @@ public class TodoListAdapter extends BaseItemDraggableAdapter<TodoListBean, Base
         }
         helper.addOnClickListener(R.id.card_view);
         helper.addOnClickListener(R.id.cb_status);
-        helper.addOnClickListener(R.id.btn_delete);
+//        helper.addOnClickListener(R.id.btn_delete);
     }
 }
