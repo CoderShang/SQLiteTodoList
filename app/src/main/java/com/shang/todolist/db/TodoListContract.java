@@ -27,7 +27,8 @@ public final class TodoListContract {
         /**
          * 用与排序的ID
          */
-        String ORDER_ID = "ORDER_ID";
+        String FRONT_ID = "FRONT_ID";
+        String BEHIND_ID = "BEHIND_ID";
         /**
          * 待办事项标题
          */

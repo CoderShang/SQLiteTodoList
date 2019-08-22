@@ -93,7 +93,7 @@ public class TodoListProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot delete from URL: " + uri);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+//        getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 
@@ -110,7 +110,7 @@ public class TodoListProvider extends ContentProvider {
                         "Cannot update URL: " + uri);
             }
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+//        getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 }

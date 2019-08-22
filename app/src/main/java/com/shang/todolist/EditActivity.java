@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,6 +14,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -25,6 +25,8 @@ import com.shang.todolist.db.DbThreadPool;
 import com.shang.todolist.db.TodoListBean;
 import com.shang.todolist.db.TodoListContract;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.Date;
 
 /**
@@ -32,6 +34,7 @@ import java.util.Date;
  */
 public class EditActivity extends AppCompatActivity {
     public static final String KEY_ID = "ID";
+    public static final String KEY_MAX_ID = "MAX_ID";
     private Toolbar mToolbar;
     private EditText et_title, et_desc;
     private TextView tv_alarm;
@@ -39,19 +42,19 @@ public class EditActivity extends AppCompatActivity {
     private RelativeLayout top_layout;
     private LinearLayout root_layout;
     private int searchId = -1; //主键ID，0说明是新添加，有值则编辑
+    private int maxId = -1; //添加orderId时，直接+1
     private TodoListBean mTodoBean;
     private Runnable queryTask;
-    private Runnable updateTask;
-    private Runnable deleteTask;
 
-    public static void startActivity(Context context, int searchId) {
+    public static void startActivity(Context context, int searchId, int maxId) {
         Intent intent = new Intent(context, EditActivity.class);
         intent.putExtra(KEY_ID, searchId);
         context.startActivity(intent);
     }
 
-    public static void startActivity(Context context) {
+    public static void startActivity(Context context, int maxId) {
         Intent intent = new Intent(context, EditActivity.class);
+        intent.putExtra(KEY_MAX_ID, maxId);
         context.startActivity(intent);
     }
 
@@ -88,6 +91,7 @@ public class EditActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null) {
             searchId = intent.getIntExtra(KEY_ID, -1);
+            maxId = intent.getIntExtra(KEY_MAX_ID, 0);
         }
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,7 +150,7 @@ public class EditActivity extends AppCompatActivity {
         int isMark = cb_mark.isChecked() ? 1 : 0;
         //调用数据库 执行 新增 或 修改 操作
         if (searchId == -1) {
-            insertValue(new TodoListBean(searchId, 0, title, desc, alarm, new Date().getTime(), 0, isMark));
+            insertValue(new TodoListBean(searchId, 0, 0, title, desc, alarm, new Date().getTime(), false, isMark));
         } else {
             mTodoBean.title = title;
             mTodoBean.description = desc;
@@ -158,16 +162,17 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void insertValue(final TodoListBean addBean) {
-        updateTask = new Runnable() {
+        Runnable updateTask = new Runnable() {
             @Override
             public void run() {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(TodoListContract.TodoListColumns.ORDER_ID, addBean.orderId);
+                contentValues.put(TodoListContract.TodoListColumns.FRONT_ID, addBean.frontId);
+                contentValues.put(TodoListContract.TodoListColumns.BEHIND_ID, addBean.behindId);
                 contentValues.put(TodoListContract.TodoListColumns.TITLE, addBean.title);
                 contentValues.put(TodoListContract.TodoListColumns.DESCRIPTION, addBean.description);
                 contentValues.put(TodoListContract.TodoListColumns.ALARM, addBean.alarm);
                 contentValues.put(TodoListContract.TodoListColumns.CREATE_TIME, addBean.createTime);
-                contentValues.put(TodoListContract.TodoListColumns.STATUS, addBean.status);
+                contentValues.put(TodoListContract.TodoListColumns.STATUS, addBean.status ? 1 : 0);
                 contentValues.put(TodoListContract.TodoListColumns.MARK, addBean.mark);
                 getContentResolver().insert(TodoListContract.TodoListColumns.CONTENT_URI, contentValues);
             }
@@ -176,7 +181,7 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void updateValue(final TodoListBean updateBean) {
-        updateTask = new Runnable() {
+        Runnable updateTask = new Runnable() {
             @Override
             public void run() {
                 ContentValues contentValues = new ContentValues();
@@ -189,16 +194,18 @@ public class EditActivity extends AppCompatActivity {
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
+        EventBus.getDefault().post(new RefreshEvent(updateBean.id));
     }
 
     private void deleteValue(final int deleteId) {
-        deleteTask = new Runnable() {
+        Runnable deleteTask = new Runnable() {
             @Override
             public void run() {
                 getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI, TodoListContract.TodoListColumns._ID + "=?", new String[]{deleteId + ""});
             }
         };
         DbThreadPool.getThreadPool().exeute(deleteTask);
+        EventBus.getDefault().post(new RefreshEvent(deleteId));
         finish();
     }
 
@@ -210,12 +217,13 @@ public class EditActivity extends AppCompatActivity {
                 mTodoBean = new TodoListBean();
                 while (cursor.moveToNext()) {
                     mTodoBean.id = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
-                    mTodoBean.orderId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.ORDER_ID));
+                    mTodoBean.frontId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.FRONT_ID));
+                    mTodoBean.behindId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.BEHIND_ID));
                     mTodoBean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
                     mTodoBean.description = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.DESCRIPTION));
                     mTodoBean.alarm = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.ALARM));
                     mTodoBean.createTime = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.CREATE_TIME));
-                    mTodoBean.status = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.STATUS));
+                    mTodoBean.status = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.STATUS)) == 1;
                     mTodoBean.mark = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.MARK));
                 }
                 mHandler.sendEmptyMessage(1);
@@ -228,12 +236,6 @@ public class EditActivity extends AppCompatActivity {
     protected void onDestroy() {
         if (queryTask != null) {
             DbThreadPool.getThreadPool().cancel(queryTask);
-        }
-        if (updateTask != null) {
-            DbThreadPool.getThreadPool().cancel(updateTask);
-        }
-        if (deleteTask != null) {
-            DbThreadPool.getThreadPool().cancel(deleteTask);
         }
         super.onDestroy();
     }
@@ -250,5 +252,13 @@ public class EditActivity extends AppCompatActivity {
             menu.findItem(R.id.action_delete).setVisible(false);
         }
         return true;
+    }
+
+    @Override
+    public void finish() {
+        InputMethodManager manager = ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE));
+        if (manager != null)
+            manager.hideSoftInputFromWindow(et_title.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        super.finish();
     }
 }

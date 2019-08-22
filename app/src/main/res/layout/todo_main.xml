@@ -13,12 +13,32 @@
         android:foreground="?android:attr/selectableItemBackground">
 
         <ImageView
+            android:id="@+id/btn_open"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:src="@drawable/ic_fun" />
+
+        <com.jaredrummler.materialspinner.MaterialSpinner
+            android:id="@+id/spinner"
+            android:layout_width="106dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="48dp"
+            android:background="@null"
+            android:textSize="16dp"
+            app:ms_background_color="@color/colorPrimary"
+            app:ms_hide_arrow="false"
+            app:ms_padding_left="16dp"
+            app:ms_padding_right="0dp"
+            app:ms_popup_padding_left="16dp"
+            app:ms_text_color="#ffffff" />
+
+        <ImageView
             android:layout_width="48dp"
             android:layout_height="match_parent"
             android:layout_gravity="right"
             android:padding="12dp"
-            android:src="@drawable/ic_pie_chart"
-            android:tint="#fff" />
+            android:src="@drawable/app_logo" />
     </FrameLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
@@ -39,11 +59,11 @@
             app:layout_constraintTop_toTopOf="parent" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <TextView
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="暂未开发..."
-        android:textColor="#000"
-        android:textSize="20sp" />
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add_todo" />
 </FrameLayout>

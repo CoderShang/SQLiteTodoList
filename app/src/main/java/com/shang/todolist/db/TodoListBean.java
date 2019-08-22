@@ -9,8 +9,10 @@ import android.os.Parcelable;
 public class TodoListBean implements Parcelable {
     //待办序号，主键自增长
     public int id;
-    //用与排序的ID
-    public int orderId;
+    //前一条ID
+    public int frontId;
+    //后一条ID
+    public int behindId;
     //待办事项标题
     public String title = "";
     //待办具体描述
@@ -19,8 +21,8 @@ public class TodoListBean implements Parcelable {
     public long alarm;
     //创建时间
     public long createTime;
-    //状态 0代办，1已处理
-    public int status;
+    //状态 0代办(false)，1已处理(true)
+    public boolean status;
     //是否被重点标记 1:被标记  0:无标记
     public int mark;
 
@@ -28,9 +30,11 @@ public class TodoListBean implements Parcelable {
     public TodoListBean() {
     }
 
-    public TodoListBean(int id, int orderId, String title, String description, long alarm, long createTime, int status, int mark) {
+
+    public TodoListBean(int id, int frontId, int behindId, String title, String description, long alarm, long createTime, boolean status, int mark) {
         this.id = id;
-        this.orderId = orderId;
+        this.frontId = frontId;
+        this.behindId = behindId;
         this.title = title;
         this.description = description;
         this.alarm = alarm;
@@ -47,23 +51,25 @@ public class TodoListBean implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.id);
-        dest.writeInt(this.orderId);
+        dest.writeInt(this.frontId);
+        dest.writeInt(this.behindId);
         dest.writeString(this.title);
         dest.writeString(this.description);
         dest.writeLong(this.alarm);
         dest.writeLong(this.createTime);
-        dest.writeInt(this.status);
+        dest.writeByte(this.status ? (byte) 1 : (byte) 0);
         dest.writeInt(this.mark);
     }
 
     protected TodoListBean(Parcel in) {
         this.id = in.readInt();
-        this.orderId = in.readInt();
+        this.frontId = in.readInt();
+        this.behindId = in.readInt();
         this.title = in.readString();
         this.description = in.readString();
         this.alarm = in.readLong();
         this.createTime = in.readLong();
-        this.status = in.readInt();
+        this.status = in.readByte() != 0;
         this.mark = in.readInt();
     }
 

@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseItemDraggableAdapter;
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.shang.todolist.db.TodoListBean;
 
@@ -49,13 +48,13 @@ public class TodoListAdapter extends BaseItemDraggableAdapter<TodoListBean, Base
             iv_alarm.setVisibility(View.VISIBLE);
         }
         cb_status.setEnabled(true);
-        if (item.status == 0) {
-            cb_status.setChecked(false);
-        } else if (item.status == 1) {
+        if (item.status) {
             cb_status.setChecked(true);
         } else {
-            cb_status.setEnabled(false);
+            cb_status.setChecked(false);
         }
+        helper.addOnClickListener(R.id.card_view);
         helper.addOnClickListener(R.id.cb_status);
+        helper.addOnClickListener(R.id.btn_delete);
     }
 }
