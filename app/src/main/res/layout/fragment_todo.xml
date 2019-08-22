@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:foreground="?android:attr/selectableItemBackground">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:src="@drawable/app_logo" />
+
+        <com.jaredrummler.materialspinner.MaterialSpinner
+            android:id="@+id/spinner"
+            android:layout_width="120dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="48dp"
+            android:background="@null"
+            app:ms_background_color="@color/colorPrimary"
+            app:ms_hide_arrow="false"
+            app:ms_text_color="#ffffff" />
+
+        <ImageView
+            android:id="@+id/img_github"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:padding="11dp"
+            android:src="@drawable/ic_github" />
+    </FrameLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="48dp"
+        android:background="@color/bg">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_todo_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="72dp"
+        app:srcCompat="@drawable/ic_add" />
+</FrameLayout>
