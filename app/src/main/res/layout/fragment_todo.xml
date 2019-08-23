@@ -1,125 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
+    android:id="@+id/swipe_refresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:openDrawer="start">
+    android:background="@color/bg">
 
-    <include
-        layout="@layout/todo_main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <!--抽屉拉开后的布局-->
-    <LinearLayout
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_todo_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@color/colorPrimary"
-        android:clickable="true"
-        android:fitsSystemWindows="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:orientation="vertical">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/btn_github"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:drawableLeft="@drawable/ic_github"
-                android:drawablePadding="6dp"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:text="CoderShang\nEmail: shangzhongjia@sina.com"
-                android:textColor="#fff"
-                android:textSize="10sp"
-                android:textStyle="bold" />
-
-            <ImageView
-                android:id="@+id/btn_settings"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="right"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:padding="12dp"
-                android:src="@drawable/ic_settings"
-                android:tint="#fff" />
-        </FrameLayout>
-
-        <TextView
-            android:id="@+id/btn_today"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:drawableLeft="@drawable/ic_today"
-            android:drawablePadding="10dp"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:text="今天  |  9月1日 星期一"
-            android:textColor="#fff"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/btn_folder"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:drawableLeft="@drawable/ic_folder_special"
-            android:drawablePadding="10dp"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:text="文件夹"
-            android:textColor="#fff"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/btn_plan"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:drawableLeft="@drawable/ic_plan"
-            android:drawablePadding="10dp"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:text="某某计划"
-            android:textColor="#fff"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/btn_plan_add"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:drawableLeft="@drawable/ic_add_circle"
-            android:drawablePadding="10dp"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:text="添加计划"
-            android:textColor="#fff"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/btn_cloud"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:drawableLeft="@drawable/ic_cloud"
-            android:drawablePadding="10dp"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:text="云同步"
-            android:textColor="#fff"
-            android:textSize="14sp" />
-    </LinearLayout>
-</android.support.v4.widget.DrawerLayout>
+        android:overScrollMode="never"
+        tools:listitem="@layout/item_todo" />
+</android.support.v4.widget.SwipeRefreshLayout>

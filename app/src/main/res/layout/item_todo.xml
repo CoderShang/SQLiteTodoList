@@ -10,6 +10,7 @@
     android:foreground="?android:attr/selectableItemBackground"
     card_view:cardBackgroundColor="#FFFFFF"
     card_view:cardCornerRadius="8dp"
+    card_view:cardElevation="0dp"
     card_view:cardUseCompatPadding="true">
 
 
@@ -31,14 +32,13 @@
                 android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/ic_mark"
                 android:drawablePadding="3dp"
                 android:gravity="center_vertical"
                 android:singleLine="true"
                 android:textColor="#000000"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:text="标题1111" />
+                tools:text="待办事项-标题" />
 
             <TextView
                 android:id="@+id/tv_desc"
@@ -49,8 +49,7 @@
                 android:singleLine="true"
                 android:textColor="#999999"
                 android:textSize="12sp"
-                android:visibility="gone"
-                tools:text="代办详情hahahahah代办详情hahahahah代办详情hahahahah代办详情hahahahah" />
+                android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout

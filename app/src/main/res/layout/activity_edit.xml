@@ -7,7 +7,12 @@
     android:background="@color/bg"
     android:orientation="vertical">
 
-    <include layout="@layout/title_bar" />
+    <com.shang.todolist.ui.widget.TitleBar
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/colorPrimary"
+        android:foreground="?android:attr/selectableItemBackground" />
 
     <RelativeLayout
         android:id="@+id/top_layout"

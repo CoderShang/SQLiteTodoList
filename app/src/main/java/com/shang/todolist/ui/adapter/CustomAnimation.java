@@ -1,4 +1,4 @@
-package com.shang.todolist;
+package com.shang.todolist.ui.adapter;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;

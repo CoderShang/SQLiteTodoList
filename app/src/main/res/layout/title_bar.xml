@@ -1,29 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/title_bar"
-    android:layout_width="match_parent"
-    android:layout_height="48dp"
-    android:background="@color/colorPrimary"
-    android:foreground="?android:attr/selectableItemBackground">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
-        android:id="@+id/bar_back"
+        android:id="@+id/bar_left"
         android:layout_width="48dp"
         android:layout_height="match_parent"
         android:foreground="?android:attr/selectableItemBackground"
         android:padding="12dp"
-        android:src="@drawable/ic_arrow_back" />
+        tools:src="@drawable/app_logo" />
 
     <TextView
-        android:id="@+id/bar_title"
+        android:id="@+id/bar_title_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="64dp"
-        android:text="编辑"
+        android:text=""
         android:textColor="#fff"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/bar_title_center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text=""
+        android:textColor="#fff"
+        android:textSize="16sp"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/bar_second"
@@ -33,15 +40,15 @@
         android:layout_marginRight="48dp"
         android:foreground="?android:attr/selectableItemBackground"
         android:padding="12dp"
-        android:src="@drawable/ic_delete_white"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:src="@drawable/ic_delete_white" />
 
     <ImageView
-        android:id="@+id/bar_first"
+        android:id="@+id/bar_right"
         android:layout_width="48dp"
         android:layout_height="match_parent"
         android:layout_gravity="right"
         android:foreground="?android:attr/selectableItemBackground"
         android:padding="12dp"
-        android:src="@drawable/ic_done" />
-</FrameLayout>
+        tools:src="@drawable/ic_done" />
+</merge>

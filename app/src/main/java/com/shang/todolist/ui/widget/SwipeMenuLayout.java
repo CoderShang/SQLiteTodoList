@@ -1,4 +1,4 @@
-package com.shang.todolist;
+package com.shang.todolist.ui.widget;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -14,6 +14,8 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
+
+import com.shang.todolist.R;
 
 /**
  * 【Item侧滑删除菜单】

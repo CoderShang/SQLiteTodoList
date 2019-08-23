@@ -1,4 +1,4 @@
-package com.shang.todolist;
+package com.shang.todolist.ui.adapter;
 
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseItemDraggableAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.shang.todolist.App;
+import com.shang.todolist.R;
 import com.shang.todolist.db.TodoListBean;
 
 import java.util.List;
@@ -42,6 +44,10 @@ public class TodoListAdapter extends BaseItemDraggableAdapter<TodoListBean, Base
             helper.setGone(R.id.tv_desc, true);
             helper.setText(R.id.tv_desc, item.description);
         }
+
+        helper.setGone(R.id.tv_desc, true);
+        helper.setText(R.id.tv_desc, item.sortId+"");
+
         if (item.alarm == 0) {
             iv_alarm.setVisibility(View.GONE);
         } else {

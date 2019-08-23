@@ -1,8 +1,7 @@
-package com.shang.todolist;
+package com.shang.todolist.ui;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Canvas;
@@ -10,29 +9,29 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.callback.ItemDragAndSwipeCallback;
 import com.chad.library.adapter.base.listener.OnItemDragListener;
 import com.chad.library.adapter.base.listener.OnItemSwipeListener;
-import com.jaredrummler.materialspinner.MaterialSpinner;
+import com.shang.todolist.App;
+import com.shang.todolist.R;
+import com.shang.todolist.UiUtils;
+import com.shang.todolist.event.DeleteTodoEvent;
+import com.shang.todolist.ui.adapter.CustomAnimation;
+import com.shang.todolist.ui.adapter.TodoListAdapter;
 import com.shang.todolist.db.DbThreadPool;
 import com.shang.todolist.db.TodoListBean;
 import com.shang.todolist.db.TodoListContract;
+import com.shang.todolist.event.EditTodoEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -40,14 +39,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TodoFragment extends BaseFragment implements View.OnClickListener {
-    private FrameLayout title_bar;
-    private ImageView btn_open, btn_settings;
-    private FloatingActionButton fab;
-    private TextView btn_github;
-    private DrawerLayout drawer_layout;
-    private FrameLayout root_layout;
-    private MaterialSpinner spinner;
+public class TodoFragment extends BaseFragment {
+    public static final int WHAT_QUERY = 1;
+    public static final int WHAT_QUERY_BYID = 2;
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView mRecyclerView;
     private TodoListAdapter mAdapter;
@@ -55,8 +49,6 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
     private ItemDragAndSwipeCallback mItemDragAndSwipeCallback;
     private int mStatus = -1;//查询条件，按照状态查找
     private int mEditPos = -1;//被点击编辑的Item位置
-    // 当前数据库最大的序号，应该SELECT MAX(column_name) FROM table_name ，
-    // 但为了省事，直接取集合长度了...，传给新增页面，直接+1 使用
     private int mListSize;
     private List<TodoListBean> mTodoList = new ArrayList<>();
     private ContentObserver mObserver;
@@ -68,25 +60,17 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
             }
             int what = msg.what;
             switch (what) {
-                case 1:
+                case WHAT_QUERY:
                     //接收查询数据库返回的结果，更新UI
                     swipeRefresh.setRefreshing(false);
                     mAdapter.setNewData(mTodoList);
                     break;
-                case 2:
-                    if (mTodoList.size() != 0) {
-                        mRecyclerView.smoothScrollToPosition(mTodoList.size() - 1);
-                    }
-                    queryValue();
-                    break;
-                case 3:
+                case WHAT_QUERY_BYID:
                     if (mEditPos == -1) {
                         break;
                     }
                     TodoListBean bean = (TodoListBean) msg.obj;
-                    if (bean == null) {
-                        mAdapter.remove(mEditPos);
-                    } else {
+                    if (bean != null) {
                         mAdapter.setData(mEditPos, bean);
                     }
                     break;
@@ -103,20 +87,8 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
 
     @Override
     protected void initView() {
-        title_bar = find(R.id.title_bar);
-        btn_open = find(R.id.btn_open);
-        drawer_layout = find(R.id.drawer_layout);
-        btn_settings = find(R.id.btn_settings);
-        btn_github = find(R.id.btn_github);
         swipeRefresh = find(R.id.swipe_refresh);
-        root_layout = find(R.id.root_layout);
         mRecyclerView = find(R.id.rv_todo_list);
-        spinner = find(R.id.spinner);
-        fab = find(R.id.fab_add);
-        title_bar.setOnClickListener(this);
-        btn_github.setOnClickListener(this);
-        btn_settings.setOnClickListener(this);
-        btn_open.setOnClickListener(this);
         //初始化下拉刷新布局
         initSuperSwipe();
     }
@@ -163,41 +135,15 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
         mObserver = new ContentObserver(mHandler) {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
-                mHandler.sendEmptyMessage(2);
-            }
-        };
-        App.get().getApplicationContext().getContentResolver().registerContentObserver(TodoListContract.TodoListColumns.CONTENT_URI, true, mObserver);
-        spinner.setItems("全部事项", "待办事项", "已办事项");
-        spinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
-            @Override
-            public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
-                switch (position) {
-                    case 0:
-                        mStatus = -1;
-                        break;
-                    case 1:
-                        mStatus = 0;
-                        break;
-                    case 2:
-                        mStatus = 1;
-                        break;
-                    default:
-                        break;
+                if (mTodoList.size() != 0) {
+                    mRecyclerView.smoothScrollToPosition(mTodoList.size() - 1);
                 }
                 queryValue();
             }
-        });
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mTodoList != null) {
-                    mListSize = mTodoList.size();
-                } else {
-                    mListSize = 0;
-                }
-                EditActivity.startActivity(getActivity(), mListSize);
-            }
-        });
+        };
+        App.get().getApplicationContext().getContentResolver()
+                .registerContentObserver(TodoListContract.TodoListColumns.CONTENT_URI,
+                        true, mObserver);
         OnItemDragListener listener = new OnItemDragListener() {
             @Override
             public void onItemDragStart(RecyclerView.ViewHolder viewHolder, int pos) {
@@ -263,7 +209,7 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
                 mEditPos = position;
                 switch (view.getId()) {
                     case R.id.card_view:
-                        EditActivity.startActivity(getActivity(), mTodoList.get(position).id, mListSize);
+                        EditActivity.startActivity(getActivity(), mTodoList.get(position).id, mEditPos);
                         break;
 //                    case R.id.btn_delete:
 //                        deleteValue(mTodoList.get(position).id);
@@ -279,30 +225,6 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
                 }
             }
         });
-    }
-
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.title_bar:
-                mRecyclerView.smoothScrollToPosition(0);
-                break;
-            case R.id.btn_open:
-                drawer_layout.openDrawer(Gravity.LEFT);
-                break;
-            case R.id.btn_settings:
-                break;
-            case R.id.btn_github:
-                Intent intent = new Intent();
-                intent.setAction("android.intent.action.VIEW");
-                Uri content_url = Uri.parse("https://github.com/CoderShang");
-                intent.setData(content_url);
-                startActivity(intent);
-                break;
-            default:
-                break;
-        }
     }
 
     /**
@@ -332,7 +254,7 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
                     bean.mark = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.MARK));
                     mTodoList.add(bean);
                 }
-                mHandler.sendEmptyMessage(1);
+                mHandler.sendEmptyMessage(WHAT_QUERY);
             }
         };
         DbThreadPool.getThreadPool().exeute(queryTask);
@@ -404,7 +326,7 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
                     bean.mark = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.MARK));
                 }
                 Message msg = Message.obtain();
-                msg.what = 3;
+                msg.what = WHAT_QUERY_BYID;
                 msg.obj = bean;
                 mHandler.sendMessage(msg);
             }
@@ -427,10 +349,33 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
         mAdapter.remove(mEditPos);
     }
 
+    /**
+     * 更新Todo的事件，查询后更新单条
+     *
+     * @param event
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(RefreshEvent event) {
+    public void onEvent(EditTodoEvent event) {
         if (event != null) {
             queryById(event.id);
+        }
+    }
+
+    /**
+     * 接收删除Todo的事件，先删，再改变排序
+     *
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(DeleteTodoEvent event) {
+        if (event != null) {
+            if (event.pos <= -1 || mTodoList == null || mTodoList.size() == 0) {
+                return;
+            }
+            mAdapter.remove(event.pos);
+            if (event.pos < mTodoList.size()) {
+                updateSort(event.pos, mTodoList.size() - 1);
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-package com.shang.todolist;
+package com.shang.todolist.ui;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.shang.todolist.event.EditTodoEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -147,7 +149,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(RefreshEvent event) {
+    public void onEvent(EditTodoEvent event) {
 
     }
 
