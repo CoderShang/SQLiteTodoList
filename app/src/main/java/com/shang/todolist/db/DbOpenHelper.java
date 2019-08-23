@@ -63,8 +63,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         StringBuilder sql = new StringBuilder();
         sql.append("CREATE TABLE IF NOT EXISTS TODOLIST(");
         sql.append("_ID  INTEGER PRIMARY KEY AUTOINCREMENT,");
-        sql.append("FRONT_ID     INTEGER    NOT NULL,");
-        sql.append("BEHIND_ID     INTEGER    NOT NULL,");
+        sql.append("SORT_ID     INTEGER    NOT NULL,");
         sql.append("TITLE        TEXT    NOT NULL,");
         sql.append("DESCRIPTION  TEXT,");
         sql.append("ALARM        INTEGER64,");

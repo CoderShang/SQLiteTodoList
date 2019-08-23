@@ -9,10 +9,8 @@ import android.os.Parcelable;
 public class TodoListBean implements Parcelable {
     //待办序号，主键自增长
     public int id;
-    //前一条ID
-    public int frontId;
-    //后一条ID
-    public int behindId;
+    //排序的ID
+    public int sortId;
     //待办事项标题
     public String title = "";
     //待办具体描述
@@ -30,11 +28,9 @@ public class TodoListBean implements Parcelable {
     public TodoListBean() {
     }
 
-
-    public TodoListBean(int id, int frontId, int behindId, String title, String description, long alarm, long createTime, boolean status, int mark) {
+    public TodoListBean(int id, int sortId, String title, String description, long alarm, long createTime, boolean status, int mark) {
         this.id = id;
-        this.frontId = frontId;
-        this.behindId = behindId;
+        this.sortId = sortId;
         this.title = title;
         this.description = description;
         this.alarm = alarm;
@@ -51,8 +47,7 @@ public class TodoListBean implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.id);
-        dest.writeInt(this.frontId);
-        dest.writeInt(this.behindId);
+        dest.writeInt(this.sortId);
         dest.writeString(this.title);
         dest.writeString(this.description);
         dest.writeLong(this.alarm);
@@ -63,8 +58,7 @@ public class TodoListBean implements Parcelable {
 
     protected TodoListBean(Parcel in) {
         this.id = in.readInt();
-        this.frontId = in.readInt();
-        this.behindId = in.readInt();
+        this.sortId = in.readInt();
         this.title = in.readString();
         this.description = in.readString();
         this.alarm = in.readLong();

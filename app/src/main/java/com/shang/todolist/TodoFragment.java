@@ -1,5 +1,6 @@
 package com.shang.todolist;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -10,7 +11,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -156,7 +156,7 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
         });
     }
 
-    private int fromPos, toPos;//记录排序from 和 to 的id
+    private int fromPos;//记录排序from 和 to 的id
 
     private void initListener() {
         // 注册数据改变的监听器
@@ -212,16 +212,11 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
             @Override
             public void onItemDragEnd(RecyclerView.ViewHolder viewHolder, int pos) {
                 swipeRefresh.setEnabled(true);
-                toPos = pos;
-                if (toPos == fromPos)
-                    return;
-                //TODO 排序ID对调
-                TodoListBean fromBean = mTodoList.get(toPos);
-                TodoListBean toBean = mTodoList.get(fromPos);
-                int tempId = fromBean.frontId;
-                fromBean.frontId = toBean.frontId;
-                toBean.frontId = tempId;
-                updateSort(fromBean, toBean);
+                if (fromPos < pos) {
+                    updateSort(fromPos, pos);
+                } else if (pos < fromPos) {
+                    updateSort(pos, fromPos);
+                }
             }
         };
         OnItemSwipeListener onItemSwipeListener = new OnItemSwipeListener() {
@@ -286,6 +281,7 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
         });
     }
 
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -319,16 +315,15 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
             public void run() {
                 Cursor cursor;
                 if (mStatus == -1) {
-                    cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, null, null, TodoListContract.TodoListColumns.FRONT_ID);
+                    cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, null, null, TodoListContract.TodoListColumns.SORT_ID);
                 } else {
-                    cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns.STATUS + "=?", new String[]{mStatus + ""}, TodoListContract.TodoListColumns.FRONT_ID);
+                    cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns.STATUS + "=?", new String[]{mStatus + ""}, TodoListContract.TodoListColumns.SORT_ID);
                 }
                 mTodoList.clear();
                 while (cursor.moveToNext()) {
                     TodoListBean bean = new TodoListBean();
                     bean.id = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
-                    bean.frontId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.FRONT_ID));
-                    bean.behindId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.BEHIND_ID));
+                    bean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
                     bean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
                     bean.description = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.DESCRIPTION));
                     bean.alarm = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.ALARM));
@@ -345,17 +340,25 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
 
     /**
      * 更改排序
+     * 从变更的开始到结束中间全部的数据都要改，很费时间，但没别的好办法
+     * 只能让数据库和前台表的下标保持一致了
      */
-    private void updateSort(final TodoListBean fromBean, final TodoListBean toBean) {
+    private void updateSort(final int from, final int to) {
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
-//                ContentValues contentValues1 = new ContentValues();
-//                contentValues1.put(TodoListContract.TodoListColumns.SORT_ID, fromBean.sortId);
-//                ContentValues contentValues2 = new ContentValues();
-//                contentValues2.put(TodoListContract.TodoListColumns.SORT_ID, toBean.sortId);
-//                App.get().getContentResolver().update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues1, TodoListContract.TodoListColumns._ID + "=?", new String[]{fromBean.id + ""});
-//                App.get().getContentResolver().update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues2, TodoListContract.TodoListColumns._ID + "=?", new String[]{toBean.id + ""});
+                if (mTodoList == null || mTodoList.size() - 1 < to)
+                    return;
+                ContentResolver resolver = App.get().getContentResolver();
+                ContentValues contentValues = new ContentValues();
+                String where = TodoListContract.TodoListColumns._ID + "=?";
+                for (int i = from; i <= to; i++) {
+                    contentValues.clear();
+                    TodoListBean bean = mTodoList.get(i);
+                    bean.sortId = i;
+                    contentValues.put(TodoListContract.TodoListColumns.SORT_ID, bean.sortId);
+                    resolver.update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues, where, new String[]{bean.id + ""});
+                }
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
@@ -392,8 +395,7 @@ public class TodoFragment extends BaseFragment implements View.OnClickListener {
                 while (cursor.moveToNext()) {
                     bean = new TodoListBean();
                     bean.id = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
-                    bean.frontId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.FRONT_ID));
-                    bean.behindId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.BEHIND_ID));
+                    bean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
                     bean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
                     bean.description = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.DESCRIPTION));
                     bean.alarm = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.ALARM));

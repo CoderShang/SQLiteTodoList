@@ -35,14 +35,14 @@ import java.util.Date;
  */
 public class EditActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String KEY_ID = "ID";
-    public static final String KEY_MAX_ID = "MAX_ID";
+    public static final String KEY_SORT_ID = "SORT_ID";
     private EditText et_title, et_desc;
     private TextView tv_alarm;
     private CheckBox cb_mark;
     private RelativeLayout top_layout;
     private LinearLayout root_layout;
     private int searchId = -1; //主键ID，0说明是新添加，有值则编辑
-    private int maxId = -1; //添加orderId时，直接+1
+    private int sortId;
     private TodoListBean mTodoBean;
     private Runnable queryTask;
     private InputMethodManager manager;
@@ -55,7 +55,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     public static void startActivity(Context context, int maxId) {
         Intent intent = new Intent(context, EditActivity.class);
-        intent.putExtra(KEY_MAX_ID, maxId);
+        intent.putExtra(KEY_SORT_ID, maxId);
         context.startActivity(intent);
     }
 
@@ -99,7 +99,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = getIntent();
         if (intent != null) {
             searchId = intent.getIntExtra(KEY_ID, -1);
-            maxId = intent.getIntExtra(KEY_MAX_ID, 0);
+            sortId = intent.getIntExtra(KEY_SORT_ID, 0);
         }
         if (searchId != -1) {
             bar_title.setText("编辑");
@@ -144,7 +144,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         int isMark = cb_mark.isChecked() ? 1 : 0;
         //调用数据库 执行 新增 或 修改 操作
         if (searchId == -1) {
-            insertValue(new TodoListBean(searchId, 0, 0, title, desc, alarm, new Date().getTime(), false, isMark));
+            insertValue(new TodoListBean(searchId,  sortId, title, desc, alarm, new Date().getTime(), false, isMark));
         } else {
             mTodoBean.title = title;
             mTodoBean.description = desc;
@@ -160,8 +160,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void run() {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(TodoListContract.TodoListColumns.FRONT_ID, addBean.frontId);
-                contentValues.put(TodoListContract.TodoListColumns.BEHIND_ID, addBean.behindId);
+                contentValues.put(TodoListContract.TodoListColumns.SORT_ID, addBean.sortId);
                 contentValues.put(TodoListContract.TodoListColumns.TITLE, addBean.title);
                 contentValues.put(TodoListContract.TodoListColumns.DESCRIPTION, addBean.description);
                 contentValues.put(TodoListContract.TodoListColumns.ALARM, addBean.alarm);
@@ -211,8 +210,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 mTodoBean = new TodoListBean();
                 while (cursor.moveToNext()) {
                     mTodoBean.id = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
-                    mTodoBean.frontId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.FRONT_ID));
-                    mTodoBean.behindId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.BEHIND_ID));
+                    mTodoBean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
                     mTodoBean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
                     mTodoBean.description = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.DESCRIPTION));
                     mTodoBean.alarm = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.ALARM));
