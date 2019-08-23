@@ -5,6 +5,6 @@
     <!--<item android:gravity="center">-->
         <!--<bitmap-->
             <!--android:gravity="center"-->
-            <!--android:src="@drawable/app_logo_large" />-->
+            <!--android:src="@drawable/" />-->
     <!--</item>-->
 </layer-list>

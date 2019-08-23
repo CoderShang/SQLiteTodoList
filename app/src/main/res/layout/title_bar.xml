@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:foreground="?android:attr/selectableItemBackground"
         android:padding="12dp"
-        tools:src="@drawable/app_logo" />
+        tools:src="@drawable/ic_alarm" />
 
     <TextView
         android:id="@+id/bar_title_left"

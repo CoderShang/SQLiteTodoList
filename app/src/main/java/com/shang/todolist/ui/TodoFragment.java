@@ -6,9 +6,12 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,6 +30,7 @@ import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
 import com.shang.todolist.event.DeleteTodoEvent;
 import com.shang.todolist.ui.adapter.CustomAnimation;
+import com.shang.todolist.ui.adapter.SpaceItemDecoration;
 import com.shang.todolist.ui.adapter.TodoListAdapter;
 import com.shang.todolist.db.DbThreadPool;
 import com.shang.todolist.db.TodoListBean;
@@ -40,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TodoFragment extends BaseFragment {
+    public static final String KEY_PLAN_ID = "PLAN_ID";
     public static final int WHAT_QUERY = 1;
     public static final int WHAT_QUERY_BYID = 2;
     private SwipeRefreshLayout swipeRefresh;
@@ -49,13 +54,30 @@ public class TodoFragment extends BaseFragment {
     private ItemDragAndSwipeCallback mItemDragAndSwipeCallback;
     private int mStatus = -1;//查询条件，按照状态查找
     private int mEditPos = -1;//被点击编辑的Item位置
-    private int mListSize;
+    private int planId;//外面传递过来的计划ID，做查询条件
     private List<TodoListBean> mTodoList = new ArrayList<>();
     private ContentObserver mObserver;
+    private int fromPos;//记录排序from 和 to 的id
+    private int deleteId;//记录准备删除的ID主键
+
+    /**
+     * 构造方法
+     *
+     * @param planId 计划ID（待办存在于一个计划当中）
+     * @return
+     */
+    public static TodoFragment newInstance(int planId) {
+        Bundle args = new Bundle();
+        args.putInt("KEY_PLAN_ID", planId);
+        TodoFragment fragment = new TodoFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if (getActivity() == null) {
+            if (mContext == null) {
                 return false;
             }
             int what = msg.what;
@@ -88,36 +110,7 @@ public class TodoFragment extends BaseFragment {
     @Override
     protected void initView() {
         swipeRefresh = find(R.id.swipe_refresh);
-        mRecyclerView = find(R.id.rv_todo_list);
         //初始化下拉刷新布局
-        initSuperSwipe();
-    }
-
-    @Override
-    protected void initData() {
-        //初始化RecyclerView
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
-        mRecyclerView.setHasFixedSize(true);
-        mAdapter = new TodoListAdapter(mTodoList);
-        View emptyView = new View(getActivity());
-        ViewGroup.LayoutParams llp = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, UiUtils.dip2px(100));
-        emptyView.setLayoutParams(llp);
-        mAdapter.setFooterView(emptyView);
-        mAdapter.bindToRecyclerView(mRecyclerView);
-        mAdapter.openLoadAnimation(new CustomAnimation());
-        mAdapter.isFirstOnly(false);
-        //设置监听
-        initListener();
-        //查询数据库
-        queryValue();
-    }
-
-    /**
-     * 初始化刷新加载布局
-     */
-    private void initSuperSwipe() {
         swipeRefresh.setColorSchemeColors(Color.parseColor("#292836"));
         swipeRefresh.setRefreshing(true);
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -126,9 +119,33 @@ public class TodoFragment extends BaseFragment {
                 queryValue();
             }
         });
+        mRecyclerView = find(R.id.rv_todo_list);
+        //初始化RecyclerView
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        //如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.addItemDecoration(new SpaceItemDecoration(UiUtils.dip2px(5), 0, UiUtils.dip2px(5), 0, UiUtils.dip2px(5)));
     }
 
-    private int fromPos;//记录排序from 和 to 的id
+    @Override
+    protected void initData() {
+        mAdapter = new TodoListAdapter(mTodoList);
+        View emptyView = new View(mContext);
+        ViewGroup.LayoutParams llp = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, UiUtils.dip2px(100));
+        emptyView.setLayoutParams(llp);
+        mAdapter.setFooterView(emptyView);
+        mAdapter.bindToRecyclerView(mRecyclerView);
+        mAdapter.openLoadAnimation(new CustomAnimation());
+        //设置监听
+        initListener();
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            planId = bundle.getInt(KEY_PLAN_ID);
+        }
+        //查询数据库
+        queryValue();
+    }
 
     private void initListener() {
         // 注册数据改变的监听器
@@ -165,43 +182,50 @@ public class TodoFragment extends BaseFragment {
                 }
             }
         };
-        OnItemSwipeListener onItemSwipeListener = new OnItemSwipeListener() {
-            @Override
-            public void onItemSwipeStart(RecyclerView.ViewHolder viewHolder, int pos) {
-                Log.d(TAG, "view swiped start: " + pos);
-                BaseViewHolder holder = ((BaseViewHolder) viewHolder);
-//                holder.setTextColor(R.id.tv, Color.WHITE);
-                swipeRefresh.setEnabled(false);
-            }
-
-            @Override
-            public void clearView(RecyclerView.ViewHolder viewHolder, int pos) {
-                Log.d(TAG, "View reset: " + pos);
-                BaseViewHolder holder = ((BaseViewHolder) viewHolder);
-//                holder.setTextColor(R.id.tv, Color.BLACK);
-                swipeRefresh.setEnabled(true);
-            }
-
-            @Override
-            public void onItemSwiped(RecyclerView.ViewHolder viewHolder, int pos) {
-                Log.d(TAG, "View Swiped: " + pos);
-                swipeRefresh.setEnabled(true);
-            }
-
-            @Override
-            public void onItemSwipeMoving(Canvas canvas, RecyclerView.ViewHolder viewHolder, float dX, float dY, boolean isCurrentlyActive) {
-//                canvas.drawColor(ContextCompat.getColor(ItemDragAndSwipeUseActivity.this, R.color.color_light_blue));
-//                canvas.drawText("Just some text", 0, 40, paint);
-            }
-        };
+//        OnItemSwipeListener onItemSwipeListener = new OnItemSwipeListener() {
+//            @Override
+//            public void onItemSwipeStart(RecyclerView.ViewHolder viewHolder, int pos) {
+//                Log.d(TAG, "view swiped start: " + pos);
+//                BaseViewHolder holder = ((BaseViewHolder) viewHolder);
+////                holder.setTextColor(R.id.tv, Color.WHITE);
+//                swipeRefresh.setEnabled(false);
+//                deleteId = mTodoList.get(pos).id;
+//            }
+//
+//            @Override
+//            public void clearView(RecyclerView.ViewHolder viewHolder, int pos) {
+//                Log.d(TAG, "View reset: " + pos);
+//                BaseViewHolder holder = ((BaseViewHolder) viewHolder);
+////                holder.setTextColor(R.id.tv, Color.BLACK);
+//                swipeRefresh.setEnabled(true);
+//                deleteId = 0;
+//            }
+//
+//            @Override
+//            public void onItemSwiped(RecyclerView.ViewHolder viewHolder, int pos) {
+//                swipeRefresh.setEnabled(true);
+//                if (mTodoList != null && mTodoList.size() >= pos) {
+//                    deleteValue(deleteId);
+//                    if (pos < mTodoList.size()) {
+//                        updateSort(pos, mTodoList.size() - 1);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onItemSwipeMoving(Canvas canvas, RecyclerView.ViewHolder viewHolder, float dX, float dY, boolean isCurrentlyActive) {
+//                canvas.drawColor(ContextCompat.getColor(mContext, R.color.colorAccent));
+////                canvas.drawText("Just some text", 0, 40, paint);
+//            }
+//        };
         mItemDragAndSwipeCallback = new ItemDragAndSwipeCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(mItemDragAndSwipeCallback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
-        //mItemDragAndSwipeCallback.setDragMoveFlags(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN);
-        mItemDragAndSwipeCallback.setSwipeMoveFlags(ItemTouchHelper.START | ItemTouchHelper.END);
-        mAdapter.enableSwipeItem();
+        mItemDragAndSwipeCallback.setDragMoveFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN);
+//        mItemDragAndSwipeCallback.setSwipeMoveFlags(ItemTouchHelper.START);
+//        mAdapter.enableSwipeItem();
         mAdapter.enableDragItem(mItemTouchHelper);
-        mAdapter.setOnItemSwipeListener(onItemSwipeListener);
+//        mAdapter.setOnItemSwipeListener(onItemSwipeListener);
         mAdapter.setOnItemDragListener(listener);
         mAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
@@ -209,7 +233,7 @@ public class TodoFragment extends BaseFragment {
                 mEditPos = position;
                 switch (view.getId()) {
                     case R.id.card_view:
-                        EditActivity.startActivity(getActivity(), mTodoList.get(position).id, mEditPos);
+                        EditActivity.startActivity(mContext, mTodoList.get(position).id, mEditPos);
                         break;
 //                    case R.id.btn_delete:
 //                        deleteValue(mTodoList.get(position).id);
@@ -345,8 +369,6 @@ public class TodoFragment extends BaseFragment {
             }
         };
         DbThreadPool.getThreadPool().exeute(deleteTask);
-        //它删它的，我更新我的UI，互不影响
-        mAdapter.remove(mEditPos);
     }
 
     /**

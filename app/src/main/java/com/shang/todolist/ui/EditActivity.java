@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -140,7 +139,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         et_desc.setText(mTodoBean.description);
         if (mTodoBean.alarm != 0) {
             tv_alarm.setText(UiUtils.getDateStr(mTodoBean.alarm));
-            tv_alarm.setCompoundDrawablesWithIntrinsicBounds(App.get().getResources().getDrawable(R.drawable.ic_alarm), null, null, null);
+            tv_alarm.setCompoundDrawablesWithIntrinsicBounds(App.get().getResources().getDrawable(R.drawable.ic_alarm_flag), null, null, null);
         }
         if (mTodoBean.mark != 0) {
             cb_mark.setChecked(true);
