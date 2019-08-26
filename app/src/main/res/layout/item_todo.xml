@@ -75,7 +75,6 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="center_vertical"
-                android:background="@null"
                 android:padding="8dp"
                 android:src="@drawable/ic_alarm_flag"
                 android:visibility="gone" />
@@ -89,17 +88,16 @@
                 android:textColor="#000000"
                 android:textSize="16sp" />
 
+            <ImageView
+                android:id="@+id/iv_delete"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="5dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_delete_red"
+                android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>
-
-    <!--<ImageView-->
-    <!--android:id="@+id/btn_delete"-->
-    <!--android:layout_width="80dp"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:paddingLeft="18dp"-->
-    <!--android:paddingTop="18dp"-->
-    <!--android:paddingRight="23dp"-->
-    <!--android:paddingBottom="18dp"-->
-    <!--android:src="@drawable/ic_delete_red" />-->
 </android.support.v7.widget.CardView>
 

@@ -18,15 +18,15 @@
         android:layout_height="match_parent"
         android:layout_marginTop="48dp" />
     <!--android:layout_marginBottom="56dp"-->
-    <com.ashokvarma.bottomnavigation.BottomNavigationBar
-        android:id="@+id/bottom_navigation_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:visibility="gone"
-        app:bnbActiveColor="#fff"
-        app:bnbBackgroundColor="@color/colorPrimary"
-        app:bnbInactiveColor="@color/gray_color" />
+    <!--<com.ashokvarma.bottomnavigation.BottomNavigationBar-->
+    <!--android:id="@+id/bottom_navigation_bar"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom"-->
+    <!--android:visibility="gone"-->
+    <!--app:bnbActiveColor="#fff"-->
+    <!--app:bnbBackgroundColor="@color/colorPrimary"-->
+    <!--app:bnbInactiveColor="@color/gray_color" />-->
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add"

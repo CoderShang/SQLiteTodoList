@@ -12,8 +12,11 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.core.BasePopupView;
 import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
+import com.shang.todolist.ui.widget.AddTodoBottomPopup;
 import com.shang.todolist.ui.widget.TitleBar;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -55,18 +58,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void barRight() {
-
             }
         });
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                if (mTodoList != null) {
-//                    mListSize = mTodoList.size();
-//                } else {
-//                    mListSize = 0;
-//                }
-                EditActivity.startActivity(MainActivity.this, 0);
+                new XPopup.Builder(MainActivity.this)
+                        .autoOpenSoftInput(true)
+                        .asCustom(new AddTodoBottomPopup(MainActivity.this)
+                        ).show();
+
+//                new XPopup.Builder(MainActivity.this)
+//                        .moveUpToKeyboard(false) //如果不加这个，评论弹窗会移动到软键盘上面
+//                        .asCustom(new ZhihuCommentPopup(MainActivity.this)/*.enableDrag(false)*/)
+//                        .show();
             }
         });
         btn_github.setOnClickListener(this);

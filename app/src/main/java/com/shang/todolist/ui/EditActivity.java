@@ -22,7 +22,7 @@ import com.shang.todolist.App;
 import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
 import com.shang.todolist.db.DbThreadPool;
-import com.shang.todolist.db.TodoListBean;
+import com.shang.todolist.db.TodoBean;
 import com.shang.todolist.db.TodoListContract;
 import com.shang.todolist.event.DeleteTodoEvent;
 import com.shang.todolist.event.EditTodoEvent;
@@ -30,7 +30,6 @@ import com.shang.todolist.ui.widget.TitleBar;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.Date;
 
 /**
  * 新增 & 编辑 待办事项的页面
@@ -38,7 +37,6 @@ import java.util.Date;
 public class EditActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String KEY_ID = "ID";
     public static final String KEY_POS = "POS";
-    public static final String KEY_SORT_ID = "SORT_ID";
     private TitleBar title_bar;
     private EditText et_title, et_desc;
     private TextView tv_alarm;
@@ -47,8 +45,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private LinearLayout root_layout;
     private int searchId = -1; //主键ID，0说明是新添加，有值则编辑
     private int pos;
-    private int sortId;
-    private TodoListBean mTodoBean;
+    private TodoBean mTodoBean;
     private Runnable queryTask;
     private InputMethodManager manager;
 
@@ -56,12 +53,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = new Intent(context, EditActivity.class);
         intent.putExtra(KEY_ID, searchId);
         intent.putExtra(KEY_POS, pos);
-        context.startActivity(intent);
-    }
-
-    public static void startActivity(Context context, int maxId) {
-        Intent intent = new Intent(context, EditActivity.class);
-        intent.putExtra(KEY_SORT_ID, maxId);
         context.startActivity(intent);
     }
 
@@ -90,7 +81,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = getIntent();
         if (intent != null) {
             searchId = intent.getIntExtra(KEY_ID, -1);
-            sortId = intent.getIntExtra(KEY_SORT_ID, 0);
             pos = intent.getIntExtra(KEY_POS, 0);
         }
         title_bar = findViewById(R.id.title_bar);
@@ -118,13 +108,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 submit();
             }
         });
-        if (searchId != -1) {
-            title_bar.setLeftTitle("编辑");
-            title_bar.setImgSecond(R.drawable.ic_delete_white);
-        } else {
-            title_bar.setLeftTitle("新增一个待办");
-            title_bar.setImgSecond(0);
-        }
+        title_bar.setLeftTitle("编辑");
+        title_bar.setImgSecond(R.drawable.ic_delete_white);
         if (searchId != -1) {
             queryValue(searchId);
         }
@@ -159,20 +144,16 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         String desc = et_desc.getText().toString();
         long alarm = 0;
         int isMark = cb_mark.isChecked() ? 1 : 0;
-        //调用数据库 执行 新增 或 修改 操作
-        if (searchId == -1) {
-            insertValue(new TodoListBean(searchId, sortId, title, desc, alarm, new Date().getTime(), false, isMark));
-        } else {
-            mTodoBean.title = title;
-            mTodoBean.description = desc;
-            mTodoBean.alarm = alarm;
-            mTodoBean.mark = isMark;
-            updateValue(mTodoBean);
-        }
+        //调用数据库 执行  修改 操作
+        mTodoBean.title = title;
+        mTodoBean.description = desc;
+        mTodoBean.alarm = alarm;
+        mTodoBean.mark = isMark;
+        updateValue(mTodoBean);
         finish();
     }
 
-    private void insertValue(final TodoListBean addBean) {
+    private void insertValue(final TodoBean addBean) {
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
@@ -190,7 +171,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         DbThreadPool.getThreadPool().exeute(updateTask);
     }
 
-    private void updateValue(final TodoListBean updateBean) {
+    private void updateValue(final TodoBean updateBean) {
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
@@ -224,7 +205,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void run() {
                 Cursor cursor = getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns._ID + "=?", new String[]{searchId + ""}, null);
-                mTodoBean = new TodoListBean();
+                mTodoBean = new TodoBean();
                 while (cursor.moveToNext()) {
                     mTodoBean.id = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
                     mTodoBean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
