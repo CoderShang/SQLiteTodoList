@@ -54,6 +54,7 @@ public class AddTodoBottomPopup extends BottomPopupView implements View.OnClickL
         btn_mark.setOnClickListener(this);
         btn_alarm.setOnClickListener(this);
         btn_add.setOnClickListener(this);
+        btn_add.setEnabled(false);
         et_comment.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
