@@ -14,6 +14,8 @@
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
     <style name="ToolBarPopupTheme" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
         <!-- 设置popupMenu背景颜色-->
         <item name="android:colorBackground">@color/colorPrimary</item>

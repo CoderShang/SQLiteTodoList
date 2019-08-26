@@ -8,12 +8,14 @@
 
     <include layout="@layout/main_content" />
     <!--抽屉拉开后的布局-->
+    <include layout="@layout/activity_main2" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/colorPrimary"
         android:clickable="true"
+        android:visibility="gone"
         android:fitsSystemWindows="true"
         android:orientation="vertical">
 
