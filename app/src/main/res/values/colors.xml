@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#292836</color>
     <color name="colorAccent">#D81B60</color>
 
+    <color name="urgent_red">#FF193D</color>
+    <color name="disable">#999999</color>
     <color name="bg">#F0F0F0</color>
     <color name="white_color">#fff</color>
     <color name="gray_color">#4b4b58</color>

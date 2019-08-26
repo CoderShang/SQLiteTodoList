@@ -6,12 +6,10 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,7 +20,6 @@ import android.view.ViewGroup;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.chad.library.adapter.base.callback.ItemDragAndSwipeCallback;
 import com.chad.library.adapter.base.listener.OnItemDragListener;
 import com.chad.library.adapter.base.listener.OnItemSwipeListener;
 import com.shang.todolist.App;
@@ -30,10 +27,11 @@ import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
 import com.shang.todolist.event.DeleteTodoEvent;
 import com.shang.todolist.ui.adapter.CustomAnimation;
+import com.shang.todolist.ui.adapter.ItemDragAndSwipeCallback;
 import com.shang.todolist.ui.adapter.SpaceItemDecoration;
 import com.shang.todolist.ui.adapter.TodoListAdapter;
 import com.shang.todolist.db.DbThreadPool;
-import com.shang.todolist.db.TodoListBean;
+import com.shang.todolist.db.TodoBean;
 import com.shang.todolist.db.TodoListContract;
 import com.shang.todolist.event.EditTodoEvent;
 
@@ -55,10 +53,11 @@ public class TodoFragment extends BaseFragment {
     private int mStatus = -1;//查询条件，按照状态查找
     private int mEditPos = -1;//被点击编辑的Item位置
     private int planId;//外面传递过来的计划ID，做查询条件
-    private List<TodoListBean> mTodoList = new ArrayList<>();
+    private List<TodoBean> mTodoList = new ArrayList<>();
     private ContentObserver mObserver;
     private int fromPos;//记录排序from 和 to 的id
     private int deleteId;//记录准备删除的ID主键
+    private Runnable queryTask;
 
     /**
      * 构造方法
@@ -91,7 +90,7 @@ public class TodoFragment extends BaseFragment {
                     if (mEditPos == -1) {
                         break;
                     }
-                    TodoListBean bean = (TodoListBean) msg.obj;
+                    TodoBean bean = (TodoBean) msg.obj;
                     if (bean != null) {
                         mAdapter.setData(mEditPos, bean);
                     }
@@ -112,7 +111,6 @@ public class TodoFragment extends BaseFragment {
         swipeRefresh = find(R.id.swipe_refresh);
         //初始化下拉刷新布局
         swipeRefresh.setColorSchemeColors(Color.parseColor("#292836"));
-        swipeRefresh.setRefreshing(true);
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -182,50 +180,52 @@ public class TodoFragment extends BaseFragment {
                 }
             }
         };
-//        OnItemSwipeListener onItemSwipeListener = new OnItemSwipeListener() {
-//            @Override
-//            public void onItemSwipeStart(RecyclerView.ViewHolder viewHolder, int pos) {
-//                Log.d(TAG, "view swiped start: " + pos);
-//                BaseViewHolder holder = ((BaseViewHolder) viewHolder);
-////                holder.setTextColor(R.id.tv, Color.WHITE);
-//                swipeRefresh.setEnabled(false);
-//                deleteId = mTodoList.get(pos).id;
-//            }
-//
-//            @Override
-//            public void clearView(RecyclerView.ViewHolder viewHolder, int pos) {
-//                Log.d(TAG, "View reset: " + pos);
-//                BaseViewHolder holder = ((BaseViewHolder) viewHolder);
-////                holder.setTextColor(R.id.tv, Color.BLACK);
-//                swipeRefresh.setEnabled(true);
-//                deleteId = 0;
-//            }
-//
-//            @Override
-//            public void onItemSwiped(RecyclerView.ViewHolder viewHolder, int pos) {
-//                swipeRefresh.setEnabled(true);
-//                if (mTodoList != null && mTodoList.size() >= pos) {
-//                    deleteValue(deleteId);
-//                    if (pos < mTodoList.size()) {
-//                        updateSort(pos, mTodoList.size() - 1);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onItemSwipeMoving(Canvas canvas, RecyclerView.ViewHolder viewHolder, float dX, float dY, boolean isCurrentlyActive) {
+        OnItemSwipeListener onItemSwipeListener = new OnItemSwipeListener() {
+            @Override
+            public void onItemSwipeStart(RecyclerView.ViewHolder viewHolder, int pos) {
+                Log.d(TAG, "view swiped start: " + pos);
+                BaseViewHolder holder = ((BaseViewHolder) viewHolder);
+                holder.setGone(R.id.iv_delete, true);
+                holder.setGone(R.id.cb_status, false);
+                swipeRefresh.setEnabled(false);
+                deleteId = mTodoList.get(pos).id;
+            }
+
+            @Override
+            public void clearView(RecyclerView.ViewHolder viewHolder, int pos) {
+                Log.d(TAG, "View reset: " + pos);
+                BaseViewHolder holder = ((BaseViewHolder) viewHolder);
+                holder.setGone(R.id.iv_delete, false);
+                holder.setGone(R.id.cb_status, true);
+                swipeRefresh.setEnabled(true);
+                deleteId = 0;
+            }
+
+            @Override
+            public void onItemSwiped(RecyclerView.ViewHolder viewHolder, int pos) {
+                swipeRefresh.setEnabled(true);
+                if (mTodoList != null && mTodoList.size() >= pos) {
+                    deleteValue(deleteId);
+                    if (pos < mTodoList.size()) {
+                        updateSort(pos, mTodoList.size() - 1);
+                    }
+                }
+            }
+
+            @Override
+            public void onItemSwipeMoving(Canvas canvas, RecyclerView.ViewHolder viewHolder, float dX, float dY, boolean isCurrentlyActive) {
 //                canvas.drawColor(ContextCompat.getColor(mContext, R.color.colorAccent));
-////                canvas.drawText("Just some text", 0, 40, paint);
-//            }
-//        };
+//                canvas.drawText("Just some text", 0, 40, paint);
+            }
+        };
         mItemDragAndSwipeCallback = new ItemDragAndSwipeCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(mItemDragAndSwipeCallback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
         mItemDragAndSwipeCallback.setDragMoveFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN);
-//        mItemDragAndSwipeCallback.setSwipeMoveFlags(ItemTouchHelper.START);
-//        mAdapter.enableSwipeItem();
+        mItemDragAndSwipeCallback.setSwipeMoveFlags(ItemTouchHelper.START);
+        mAdapter.enableSwipeItem();
         mAdapter.enableDragItem(mItemTouchHelper);
-//        mAdapter.setOnItemSwipeListener(onItemSwipeListener);
+        mAdapter.setOnItemSwipeListener(onItemSwipeListener);
         mAdapter.setOnItemDragListener(listener);
         mAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
@@ -235,11 +235,8 @@ public class TodoFragment extends BaseFragment {
                     case R.id.card_view:
                         EditActivity.startActivity(mContext, mTodoList.get(position).id, mEditPos);
                         break;
-//                    case R.id.btn_delete:
-//                        deleteValue(mTodoList.get(position).id);
-//                        break;
                     case R.id.cb_status:
-                        TodoListBean bean = mTodoList.get(position);
+                        TodoBean bean = mTodoList.get(position);
                         if (bean != null) {
                             bean.status = !bean.status;
                             updateStatus(bean);
@@ -256,7 +253,7 @@ public class TodoFragment extends BaseFragment {
      */
     private void queryValue() {
         swipeRefresh.setRefreshing(true);
-        Runnable queryTask = new Runnable() {
+        queryTask = new Runnable() {
             @Override
             public void run() {
                 Cursor cursor;
@@ -267,7 +264,7 @@ public class TodoFragment extends BaseFragment {
                 }
                 mTodoList.clear();
                 while (cursor.moveToNext()) {
-                    TodoListBean bean = new TodoListBean();
+                    TodoBean bean = new TodoBean();
                     bean.id = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
                     bean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
                     bean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
@@ -281,7 +278,12 @@ public class TodoFragment extends BaseFragment {
                 mHandler.sendEmptyMessage(WHAT_QUERY);
             }
         };
-        DbThreadPool.getThreadPool().exeute(queryTask);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                DbThreadPool.getThreadPool().exeute(queryTask);
+            }
+        }, 500);
     }
 
     /**
@@ -300,7 +302,7 @@ public class TodoFragment extends BaseFragment {
                 String where = TodoListContract.TodoListColumns._ID + "=?";
                 for (int i = from; i <= to; i++) {
                     contentValues.clear();
-                    TodoListBean bean = mTodoList.get(i);
+                    TodoBean bean = mTodoList.get(i);
                     bean.sortId = i;
                     contentValues.put(TodoListContract.TodoListColumns.SORT_ID, bean.sortId);
                     resolver.update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues, where, new String[]{bean.id + ""});
@@ -315,7 +317,7 @@ public class TodoFragment extends BaseFragment {
      *
      * @param updateBean
      */
-    private void updateStatus(final TodoListBean updateBean) {
+    private void updateStatus(final TodoBean updateBean) {
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
@@ -337,9 +339,9 @@ public class TodoFragment extends BaseFragment {
             @Override
             public void run() {
                 Cursor cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns._ID + "=?", new String[]{searchId + ""}, null);
-                TodoListBean bean = null;
+                TodoBean bean = null;
                 while (cursor.moveToNext()) {
-                    bean = new TodoListBean();
+                    bean = new TodoBean();
                     bean.id = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
                     bean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
                     bean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
@@ -403,6 +405,9 @@ public class TodoFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
+        if (queryTask != null) {
+            DbThreadPool.getThreadPool().cancel(queryTask);
+        }
         App.get().getApplicationContext().getContentResolver().unregisterContentObserver(mObserver);
         super.onDestroyView();
     }

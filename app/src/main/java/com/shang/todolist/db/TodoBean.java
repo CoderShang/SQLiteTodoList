@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * 待办事项 映射的实体类
  */
-public class TodoListBean implements Parcelable {
+public class TodoBean implements Parcelable {
     //待办序号，主键自增长
     public int id;
     //排序的ID
@@ -25,10 +25,10 @@ public class TodoListBean implements Parcelable {
     public int mark;
 
 
-    public TodoListBean() {
+    public TodoBean() {
     }
 
-    public TodoListBean(int id, int sortId, String title, String description, long alarm, long createTime, boolean status, int mark) {
+    public TodoBean(int id, int sortId, String title, String description, long alarm, long createTime, boolean status, int mark) {
         this.id = id;
         this.sortId = sortId;
         this.title = title;
@@ -56,7 +56,7 @@ public class TodoListBean implements Parcelable {
         dest.writeInt(this.mark);
     }
 
-    protected TodoListBean(Parcel in) {
+    protected TodoBean(Parcel in) {
         this.id = in.readInt();
         this.sortId = in.readInt();
         this.title = in.readString();
@@ -67,15 +67,15 @@ public class TodoListBean implements Parcelable {
         this.mark = in.readInt();
     }
 
-    public static final Creator<TodoListBean> CREATOR = new Creator<TodoListBean>() {
+    public static final Creator<TodoBean> CREATOR = new Creator<TodoBean>() {
         @Override
-        public TodoListBean createFromParcel(Parcel source) {
-            return new TodoListBean(source);
+        public TodoBean createFromParcel(Parcel source) {
+            return new TodoBean(source);
         }
 
         @Override
-        public TodoListBean[] newArray(int size) {
-            return new TodoListBean[size];
+        public TodoBean[] newArray(int size) {
+            return new TodoBean[size];
         }
     };
 }
