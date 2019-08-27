@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         add_todo_view.setListener(new AddTodoView.OnAddListener() {
             @Override
             public void onCreated(TodoBean bean) {
+                add_todo_view.clearUI();
                 UiUtils.hideSoftKeyboard(MainActivity.this, add_todo_view.et_comment);
                 insertValue(bean);
             }
