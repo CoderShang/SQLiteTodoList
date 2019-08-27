@@ -12,11 +12,10 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.core.BasePopupView;
 import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
-import com.shang.todolist.ui.widget.AddTodoBottomPopup;
+import com.shang.todolist.ui.widget.AddTodoView;
+import com.shang.todolist.ui.widget.SoftKeyBoardListener;
 import com.shang.todolist.ui.widget.TitleBar;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -28,13 +27,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView btn_github, btn_today, btn_plan;
     private DrawerLayout drawer_layout;
     private FrameLayout root_layout;
+    private AddTodoView add_todo_view;
+    private View above_view;
     private int lastPos = -1;
+    private SoftKeyBoardListener mSoftKeyBoardListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         title_bar = findViewById(R.id.title_bar);
+        above_view = findViewById(R.id.above_view);
+        add_todo_view = findViewById(R.id.add_todo_view);
         drawer_layout = findViewById(R.id.drawer_layout);
         root_layout = findViewById(R.id.root_layout);
         btn_github = findViewById(R.id.btn_github);
@@ -63,22 +67,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new XPopup.Builder(MainActivity.this)
-                        .autoOpenSoftInput(true)
-                        .asCustom(new AddTodoBottomPopup(MainActivity.this)
-                        ).show();
-
+                fab.hide();
+                add_todo_view.et_comment.requestFocus();
+                UiUtils.showSoftKeyboard(MainActivity.this, add_todo_view.et_comment);
 //                new XPopup.Builder(MainActivity.this)
 //                        .moveUpToKeyboard(false) //如果不加这个，评论弹窗会移动到软键盘上面
 //                        .asCustom(new ZhihuCommentPopup(MainActivity.this)/*.enableDrag(false)*/)
 //                        .show();
             }
         });
+        above_view.setOnClickListener(this);
         btn_github.setOnClickListener(this);
         btn_today.setOnClickListener(this);
         btn_plan.setOnClickListener(this);
         //初始化默认的Fragment
         switchFragment(0);
+        mSoftKeyBoardListener = new SoftKeyBoardListener(this);
+        mSoftKeyBoardListener.setListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+
+            @Override
+            public void keyBoardShow(int height) {
+//                add_todo_view.et_comment.setSelection(add_todo_view.et_comment.getText().length());
+                above_view.setVisibility(View.VISIBLE);
+                add_todo_view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void keyBoardHide(int height) {
+                above_view.setVisibility(View.GONE);
+                add_todo_view.setVisibility(View.GONE);
+                fab.show();
+            }
+        });
     }
 
 
@@ -108,6 +128,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.above_view:
+                UiUtils.hideSoftKeyboard(this, add_todo_view.et_comment);
+                break;
             case R.id.btn_today:
                 title_bar.setTitle(btn_today.getText().toString());
                 switchFragment(0);
@@ -126,5 +149,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mSoftKeyBoardListener != null) {
+            mSoftKeyBoardListener.removeListener(this);
+        }
+        super.onDestroy();
     }
 }

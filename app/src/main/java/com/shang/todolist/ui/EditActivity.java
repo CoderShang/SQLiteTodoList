@@ -47,7 +47,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private int pos;
     private TodoBean mTodoBean;
     private Runnable queryTask;
-    private InputMethodManager manager;
 
     public static void startActivity(Context context, int searchId, int pos) {
         Intent intent = new Intent(context, EditActivity.class);
@@ -113,7 +112,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         if (searchId != -1) {
             queryValue(searchId);
         }
-        manager = ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE));
     }
 
     /**
@@ -223,14 +221,12 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    protected void onDestroy() {
+    public void finish() {
+        UiUtils.hideSoftKeyboard(this,et_title);
         if (queryTask != null) {
             DbThreadPool.getThreadPool().cancel(queryTask);
         }
-        if (manager != null)
-            manager.hideSoftInputFromWindow(et_title.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        manager = null;
-        super.onDestroy();
+        super.finish();
     }
 
     @Override

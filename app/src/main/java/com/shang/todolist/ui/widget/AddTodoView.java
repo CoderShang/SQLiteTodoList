@@ -2,55 +2,56 @@ package com.shang.todolist.ui.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.lxj.xpopup.core.BottomPopupView;
 import com.shang.todolist.R;
 import com.shang.todolist.db.TodoBean;
 
 /**
- * 添加待办的弹窗
+ * 添加待办的底部View
  */
-public class AddTodoBottomPopup extends BottomPopupView implements View.OnClickListener {
-    private EditText et_comment;
+public class AddTodoView extends LinearLayout implements View.OnClickListener {
+    public EditText et_comment;
     private ImageView btn_mark;
     private ImageView btn_alarm;
     private ImageView btn_add;
+    private LinearLayout ll_add;
     private boolean markFlag;
     private TodoBean mBean;
     private OnAddListener listener;
 
-    public interface OnAddListener {
-        void onCreated(TodoBean bean);
-    }
-
-    public AddTodoBottomPopup(@NonNull Context context) {
+    public AddTodoView(Context context) {
         super(context);
+        init(context);
     }
 
-    public void setListener(OnAddListener listener) {
-        this.listener = listener;
+    public AddTodoView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
     }
 
-    @Override
-    protected int getImplLayoutId() {
-        return R.layout.add_bottom_popup;
+    public AddTodoView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context);
     }
 
-    @Override
-    protected void onCreate() {
-        super.onCreate();
+    private void init(Context context) {
+        LayoutInflater.from(context).inflate(R.layout.add_bottom_popup, this, true);
+        ll_add = findViewById(R.id.ll_add);
         et_comment = findViewById(R.id.et_comment);
         btn_mark = findViewById(R.id.btn_mark);
         btn_alarm = findViewById(R.id.btn_alarm);
         btn_add = findViewById(R.id.btn_add);
+        ll_add.setOnClickListener(this);
         btn_mark.setOnClickListener(this);
         btn_alarm.setOnClickListener(this);
         btn_add.setOnClickListener(this);
@@ -79,14 +80,12 @@ public class AddTodoBottomPopup extends BottomPopupView implements View.OnClickL
         });
     }
 
-    @Override
-    protected void onShow() {
-        super.onShow();
+    public interface OnAddListener {
+        void onCreated(TodoBean bean);
     }
 
-    @Override
-    protected void onDismiss() {
-        super.onDismiss();
+    public void setListener(OnAddListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -104,18 +103,12 @@ public class AddTodoBottomPopup extends BottomPopupView implements View.OnClickL
                 Toast.makeText(getContext(), "暂未开发...", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btn_add:
-                add();
+                if (listener != null) {
+                    listener.onCreated(mBean);
+                }
                 break;
             default:
                 break;
-        }
-    }
-
-    private void add() {
-        dismiss();
-        //                mBean=new TodoBean();
-        if (listener != null) {
-            listener.onCreated(mBean);
         }
     }
 }

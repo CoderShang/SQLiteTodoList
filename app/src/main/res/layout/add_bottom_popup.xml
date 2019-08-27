@@ -2,6 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#eeeeee"
+    android:id="@+id/ll_add"
     android:orientation="vertical"
     android:paddingTop="8dp">
 

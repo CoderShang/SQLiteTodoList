@@ -14,8 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.MainActivity"
-            android:windowSoftInputMode="adjustResize">
+            android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,8 +22,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.EditActivity"
-            android:windowSoftInputMode="adjustResize" />
+            android:name=".ui.EditActivity" />
 
         <provider
             android:name=".db.TodoListProvider"

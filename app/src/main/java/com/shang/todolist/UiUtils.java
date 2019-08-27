@@ -1,5 +1,11 @@
 package com.shang.todolist;
 
+import android.app.Activity;
+import android.content.Context;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -130,5 +136,34 @@ public class UiUtils {
             default:
         }
         return dayStr;
+    }
+
+    public static void showSoftKeyboard(Context context, View view) {
+        ((InputMethodManager) context.getSystemService(
+                Context.INPUT_METHOD_SERVICE)).showSoftInput(view,
+                InputMethodManager.SHOW_FORCED);
+    }
+
+    /**
+     * 隐藏软键盘
+     *
+     * @param context
+     * @param view
+     */
+    public static void hideSoftKeyboard(Context context, View view) {
+        if (view == null)
+            return;
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        if (inputMethodManager.isActive())
+            inputMethodManager.hideSoftInputFromWindow(
+                    view.getWindowToken(), 0);
+    }
+
+    public static void hideSoftInputForActivity(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        if (inputMethodManager.isActive())
+            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }
