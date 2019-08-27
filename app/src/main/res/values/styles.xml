@@ -14,7 +14,13 @@
 
     <style name="AppTheme.MyAppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+        <!--<item name="toolbarStyle">@style/CustomToolbar</item>-->
+    </style>
+
+    <style name="CustomToolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="contentInsetStart">0dp</item><!-- 设置该属性边距为0dp-->
+    </style>
 
     <style name="ToolBarPopupTheme" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
         <!-- 设置popupMenu背景颜色-->

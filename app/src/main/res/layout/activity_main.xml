@@ -8,7 +8,6 @@
 
     <include layout="@layout/main_content" />
     <!--抽屉拉开后的布局-->
-    <!--<include layout="@layout/main_left" />-->
-    <include layout="@layout/main_slide" />
+    <include layout="@layout/main_left" />
 
 </android.support.v4.widget.DrawerLayout>
