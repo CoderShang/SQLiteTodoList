@@ -22,7 +22,7 @@ public class ItemDragAndSwipeCallback extends ItemTouchHelper.Callback {
     private BaseItemDraggableAdapter mAdapter;
 
     private float mMoveThreshold = 0.1f;
-    private float mSwipeThreshold = 1.0f;
+    private float mSwipeThreshold = 0.5f;
 
     private int mDragMoveFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
     private int mSwipeMoveFlags = ItemTouchHelper.END;

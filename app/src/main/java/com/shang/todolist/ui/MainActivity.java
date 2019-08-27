@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -73,7 +74,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onCreated(TodoBean bean) {
                 UiUtils.hideSoftKeyboard(MainActivity.this, add_todo_view.et_comment);
                 insertValue(bean);
-                add_todo_view.clearUI();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        add_todo_view.clearUI();
+                    }
+                }, 500);
             }
         });
         fab.setOnClickListener(new View.OnClickListener() {

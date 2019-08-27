@@ -6,11 +6,14 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorSpace;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -163,6 +166,9 @@ public class TodoFragment extends BaseFragment {
             @Override
             public void onItemDragStart(RecyclerView.ViewHolder viewHolder, int pos) {
                 swipeRefresh.setEnabled(false);
+                BaseViewHolder holder = ((BaseViewHolder) viewHolder);
+                holder.setGone(R.id.iv_sort, true);
+                holder.setGone(R.id.cb_status, false);
                 fromPos = pos;
             }
 
@@ -173,6 +179,9 @@ public class TodoFragment extends BaseFragment {
             @Override
             public void onItemDragEnd(RecyclerView.ViewHolder viewHolder, int pos) {
                 swipeRefresh.setEnabled(true);
+                BaseViewHolder holder = ((BaseViewHolder) viewHolder);
+                holder.setGone(R.id.iv_sort, false);
+                holder.setGone(R.id.cb_status, true);
                 if (fromPos < pos) {
                     updateSort(fromPos, pos);
                 } else if (pos < fromPos) {
@@ -183,21 +192,27 @@ public class TodoFragment extends BaseFragment {
         OnItemSwipeListener onItemSwipeListener = new OnItemSwipeListener() {
             @Override
             public void onItemSwipeStart(RecyclerView.ViewHolder viewHolder, int pos) {
-                Log.d(TAG, "view swiped start: " + pos);
+                swipeRefresh.setEnabled(false);
                 BaseViewHolder holder = ((BaseViewHolder) viewHolder);
+                holder.setTextColor(R.id.tv_title, ContextCompat.getColor(getContext(), R.color.white_color));
+                holder.setTextColor(R.id.tv_desc, ContextCompat.getColor(getContext(), R.color.white_color));
                 holder.setGone(R.id.iv_delete, true);
                 holder.setGone(R.id.cb_status, false);
-                swipeRefresh.setEnabled(false);
+                CardView cardView = holder.getView(R.id.card_view);
+                cardView.setCardBackgroundColor(ContextCompat.getColor(getContext(), R.color.urgent_red));
                 deleteId = mTodoList.get(pos).id;
             }
 
             @Override
             public void clearView(RecyclerView.ViewHolder viewHolder, int pos) {
-                Log.d(TAG, "View reset: " + pos);
+                swipeRefresh.setEnabled(true);
                 BaseViewHolder holder = ((BaseViewHolder) viewHolder);
                 holder.setGone(R.id.iv_delete, false);
                 holder.setGone(R.id.cb_status, true);
-                swipeRefresh.setEnabled(true);
+                holder.setTextColor(R.id.tv_title, ContextCompat.getColor(getContext(), R.color.black_color));
+                holder.setTextColor(R.id.tv_desc, ContextCompat.getColor(getContext(), R.color.disable));
+                CardView cardView = holder.getView(R.id.card_view);
+                cardView.setCardBackgroundColor(ContextCompat.getColor(getContext(), R.color.white_color));
                 deleteId = 0;
             }
 
