@@ -253,30 +253,32 @@ public class TodoFragment extends BaseFragment {
      */
     private void queryValue() {
         swipeRefresh.setRefreshing(true);
-        queryTask = new Runnable() {
-            @Override
-            public void run() {
-                Cursor cursor;
-                if (mStatus == -1) {
-                    cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, null, null, TodoListContract.TodoListColumns.SORT_ID);
-                } else {
-                    cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns.STATUS + "=?", new String[]{mStatus + ""}, TodoListContract.TodoListColumns.SORT_ID);
+        if (queryTask == null) {
+            queryTask = new Runnable() {
+                @Override
+                public void run() {
+                    Cursor cursor;
+                    if (mStatus == -1) {
+                        cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, null, null, TodoListContract.TodoListColumns.SORT_ID);
+                    } else {
+                        cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns.STATUS + "=?", new String[]{mStatus + ""}, TodoListContract.TodoListColumns.SORT_ID);
+                    }
+                    mTodoList.clear();
+                    while (cursor.moveToNext()) {
+                        TodoBean bean = new TodoBean();
+                        bean.id = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
+                        bean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
+                        bean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
+                        bean.description = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.DESCRIPTION));
+                        bean.alarm = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.ALARM));
+                        bean.status = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.STATUS)) == 1;
+                        bean.mark = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.MARK));
+                        mTodoList.add(bean);
+                    }
+                    mHandler.sendEmptyMessage(WHAT_QUERY);
                 }
-                mTodoList.clear();
-                while (cursor.moveToNext()) {
-                    TodoBean bean = new TodoBean();
-                    bean.id = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
-                    bean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
-                    bean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
-                    bean.description = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.DESCRIPTION));
-                    bean.alarm = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.ALARM));
-                    bean.status = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.STATUS)) == 1;
-                    bean.mark = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.MARK));
-                    mTodoList.add(bean);
-                }
-                mHandler.sendEmptyMessage(WHAT_QUERY);
-            }
-        };
+            };
+        }
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
