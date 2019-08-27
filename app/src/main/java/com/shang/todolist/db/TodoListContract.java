@@ -41,10 +41,6 @@ public final class TodoListContract {
          */
         String ALARM = "ALARM";
         /**
-         * 创建时间
-         */
-        String CREATE_TIME = "CREATE_TIME";
-        /**
          * 状态 0代办，1已处理
          */
         String STATUS = "STATUS";

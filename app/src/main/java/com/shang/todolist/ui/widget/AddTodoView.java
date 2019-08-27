@@ -16,6 +16,8 @@ import android.widget.Toast;
 import com.shang.todolist.R;
 import com.shang.todolist.db.TodoBean;
 
+import java.util.Calendar;
+
 /**
  * 添加待办的底部View
  */
@@ -42,6 +44,13 @@ public class AddTodoView extends LinearLayout implements View.OnClickListener {
     public AddTodoView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
+    }
+
+    public void clearUI() {
+        et_comment.setText("");
+        markFlag = false;
+        btn_mark.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.disable)));
+
     }
 
     private void init(Context context) {
@@ -104,6 +113,8 @@ public class AddTodoView extends LinearLayout implements View.OnClickListener {
                 break;
             case R.id.btn_add:
                 if (listener != null) {
+                    mBean = new TodoBean(Calendar.getInstance().getTimeInMillis(),
+                            0, et_comment.getText().toString(), "", 0, false, markFlag ? 1 : 0);
                     listener.onCreated(mBean);
                 }
                 break;

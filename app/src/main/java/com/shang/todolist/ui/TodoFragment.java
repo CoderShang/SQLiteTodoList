@@ -52,11 +52,11 @@ public class TodoFragment extends BaseFragment {
     private ItemDragAndSwipeCallback mItemDragAndSwipeCallback;
     private int mStatus = -1;//查询条件，按照状态查找
     private int mEditPos = -1;//被点击编辑的Item位置
-    private int planId;//外面传递过来的计划ID，做查询条件
+    private long planId;//外面传递过来的计划ID，做查询条件
     private List<TodoBean> mTodoList = new ArrayList<>();
     private ContentObserver mObserver;
-    private int fromPos;//记录排序from 和 to 的id
-    private int deleteId;//记录准备删除的ID主键
+    private int fromPos;//记录排序from 和 to 的位置
+    private long deleteId;//记录准备删除的ID主键
     private Runnable queryTask;
 
     /**
@@ -65,9 +65,9 @@ public class TodoFragment extends BaseFragment {
      * @param planId 计划ID（待办存在于一个计划当中）
      * @return
      */
-    public static TodoFragment newInstance(int planId) {
+    public static TodoFragment newInstance(long planId) {
         Bundle args = new Bundle();
-        args.putInt("KEY_PLAN_ID", planId);
+        args.putLong("KEY_PLAN_ID", planId);
         TodoFragment fragment = new TodoFragment();
         fragment.setArguments(args);
         return fragment;
@@ -139,7 +139,7 @@ public class TodoFragment extends BaseFragment {
         initListener();
         Bundle bundle = getArguments();
         if (bundle != null) {
-            planId = bundle.getInt(KEY_PLAN_ID);
+            planId = bundle.getLong(KEY_PLAN_ID);
         }
         //查询数据库
         queryValue();
@@ -265,12 +265,11 @@ public class TodoFragment extends BaseFragment {
                 mTodoList.clear();
                 while (cursor.moveToNext()) {
                     TodoBean bean = new TodoBean();
-                    bean.id = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
+                    bean.id = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
                     bean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
                     bean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
                     bean.description = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.DESCRIPTION));
                     bean.alarm = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.ALARM));
-                    bean.createTime = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.CREATE_TIME));
                     bean.status = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.STATUS)) == 1;
                     bean.mark = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.MARK));
                     mTodoList.add(bean);
@@ -334,20 +333,19 @@ public class TodoFragment extends BaseFragment {
      *
      * @param searchId
      */
-    private void queryById(final int searchId) {
+    private void queryById(final long searchId) {
         Runnable queryTask = new Runnable() {
             @Override
             public void run() {
-                Cursor cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns._ID + "=?", new String[]{searchId + ""}, null);
+                Cursor cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(searchId)}, null);
                 TodoBean bean = null;
                 while (cursor.moveToNext()) {
                     bean = new TodoBean();
-                    bean.id = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
+                    bean.id = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
                     bean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
                     bean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
                     bean.description = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.DESCRIPTION));
                     bean.alarm = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.ALARM));
-                    bean.createTime = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.CREATE_TIME));
                     bean.status = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.STATUS)) == 1;
                     bean.mark = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.MARK));
                 }
@@ -363,11 +361,11 @@ public class TodoFragment extends BaseFragment {
     /**
      * 单条删除
      */
-    private void deleteValue(final int id) {
+    private void deleteValue(final long id) {
         Runnable deleteTask = new Runnable() {
             @Override
             public void run() {
-                App.get().getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI, TodoListContract.TodoListColumns._ID + "=?", new String[]{id + ""});
+                App.get().getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(id)});
             }
         };
         DbThreadPool.getThreadPool().exeute(deleteTask);

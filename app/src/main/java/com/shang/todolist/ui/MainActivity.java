@@ -1,5 +1,6 @@
 package com.shang.todolist.ui;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +15,9 @@ import android.widget.TextView;
 
 import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
+import com.shang.todolist.db.DbThreadPool;
+import com.shang.todolist.db.TodoBean;
+import com.shang.todolist.db.TodoListContract;
 import com.shang.todolist.ui.widget.AddTodoView;
 import com.shang.todolist.ui.widget.SoftKeyBoardListener;
 import com.shang.todolist.ui.widget.TitleBar;
@@ -62,6 +66,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void barRight() {
+            }
+        });
+        add_todo_view.setListener(new AddTodoView.OnAddListener() {
+            @Override
+            public void onCreated(TodoBean bean) {
+                UiUtils.hideSoftKeyboard(MainActivity.this, add_todo_view.et_comment);
+                insertValue(bean);
             }
         });
         fab.setOnClickListener(new View.OnClickListener() {
@@ -123,6 +134,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, fragment).commitAllowingStateLoss();
+    }
+
+    private void insertValue(final TodoBean addBean) {
+        Runnable updateTask = new Runnable() {
+            @Override
+            public void run() {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(TodoListContract.TodoListColumns._ID, addBean.id);
+                contentValues.put(TodoListContract.TodoListColumns.SORT_ID, addBean.sortId);
+                contentValues.put(TodoListContract.TodoListColumns.TITLE, addBean.title);
+                contentValues.put(TodoListContract.TodoListColumns.DESCRIPTION, addBean.description);
+                contentValues.put(TodoListContract.TodoListColumns.ALARM, addBean.alarm);
+                contentValues.put(TodoListContract.TodoListColumns.STATUS, addBean.status ? 1 : 0);
+                contentValues.put(TodoListContract.TodoListColumns.MARK, addBean.mark);
+                getContentResolver().insert(TodoListContract.TodoListColumns.CONTENT_URI, contentValues);
+            }
+        };
+        DbThreadPool.getThreadPool().exeute(updateTask);
     }
 
     @Override

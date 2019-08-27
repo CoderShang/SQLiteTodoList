@@ -62,12 +62,11 @@ public class DbOpenHelper extends SQLiteOpenHelper {
     private void createCompany(SQLiteDatabase db) {
         StringBuilder sql = new StringBuilder();
         sql.append("CREATE TABLE IF NOT EXISTS TODOLIST(");
-        sql.append("_ID  INTEGER PRIMARY KEY AUTOINCREMENT,");
+        sql.append("_ID  INTEGER64 PRIMARY KEY,");
         sql.append("SORT_ID     INTEGER    NOT NULL,");
         sql.append("TITLE        TEXT    NOT NULL,");
         sql.append("DESCRIPTION  TEXT,");
         sql.append("ALARM        INTEGER64,");
-        sql.append("CREATE_TIME  INTEGER64,");
         sql.append("STATUS       INTEGER,");
         sql.append("MARK         INTEGER);");
         db.execSQL(sql.toString());

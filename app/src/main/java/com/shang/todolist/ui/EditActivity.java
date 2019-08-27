@@ -11,7 +11,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -43,12 +42,12 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private CheckBox cb_mark;
     private RelativeLayout top_layout;
     private LinearLayout root_layout;
-    private int searchId = -1; //主键ID，0说明是新添加，有值则编辑
+    private long searchId = -1; //主键ID，0说明是新添加，有值则编辑
     private int pos;
     private TodoBean mTodoBean;
     private Runnable queryTask;
 
-    public static void startActivity(Context context, int searchId, int pos) {
+    public static void startActivity(Context context, long searchId, int pos) {
         Intent intent = new Intent(context, EditActivity.class);
         intent.putExtra(KEY_ID, searchId);
         intent.putExtra(KEY_POS, pos);
@@ -79,7 +78,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_edit);
         Intent intent = getIntent();
         if (intent != null) {
-            searchId = intent.getIntExtra(KEY_ID, -1);
+            searchId = intent.getLongExtra(KEY_ID, -1);
             pos = intent.getIntExtra(KEY_POS, 0);
         }
         title_bar = findViewById(R.id.title_bar);
@@ -151,24 +150,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         finish();
     }
 
-    private void insertValue(final TodoBean addBean) {
-        Runnable updateTask = new Runnable() {
-            @Override
-            public void run() {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(TodoListContract.TodoListColumns.SORT_ID, addBean.sortId);
-                contentValues.put(TodoListContract.TodoListColumns.TITLE, addBean.title);
-                contentValues.put(TodoListContract.TodoListColumns.DESCRIPTION, addBean.description);
-                contentValues.put(TodoListContract.TodoListColumns.ALARM, addBean.alarm);
-                contentValues.put(TodoListContract.TodoListColumns.CREATE_TIME, addBean.createTime);
-                contentValues.put(TodoListContract.TodoListColumns.STATUS, addBean.status ? 1 : 0);
-                contentValues.put(TodoListContract.TodoListColumns.MARK, addBean.mark);
-                getContentResolver().insert(TodoListContract.TodoListColumns.CONTENT_URI, contentValues);
-            }
-        };
-        DbThreadPool.getThreadPool().exeute(updateTask);
-    }
-
     private void updateValue(final TodoBean updateBean) {
         Runnable updateTask = new Runnable() {
             @Override
@@ -177,20 +158,19 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 contentValues.put(TodoListContract.TodoListColumns.TITLE, updateBean.title);
                 contentValues.put(TodoListContract.TodoListColumns.DESCRIPTION, updateBean.description);
                 contentValues.put(TodoListContract.TodoListColumns.ALARM, updateBean.alarm);
-                contentValues.put(TodoListContract.TodoListColumns.CREATE_TIME, updateBean.createTime);
                 contentValues.put(TodoListContract.TodoListColumns.MARK, updateBean.mark);
-                getContentResolver().update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues, TodoListContract.TodoListColumns._ID + "=?", new String[]{updateBean.id + ""});
+                getContentResolver().update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(updateBean.id)});
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
         EventBus.getDefault().post(new EditTodoEvent(updateBean.id));
     }
 
-    private void deleteValue(int pos, final int deleteId) {
+    private void deleteValue(int pos, final long deleteId) {
         Runnable deleteTask = new Runnable() {
             @Override
             public void run() {
-                getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI, TodoListContract.TodoListColumns._ID + "=?", new String[]{deleteId + ""});
+                getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(deleteId)});
             }
         };
         DbThreadPool.getThreadPool().exeute(deleteTask);
@@ -198,19 +178,18 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         finish();
     }
 
-    private void queryValue(final int searchId) {
+    private void queryValue(final long searchId) {
         queryTask = new Runnable() {
             @Override
             public void run() {
-                Cursor cursor = getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns._ID + "=?", new String[]{searchId + ""}, null);
+                Cursor cursor = getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(searchId)}, null);
                 mTodoBean = new TodoBean();
                 while (cursor.moveToNext()) {
-                    mTodoBean.id = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
+                    mTodoBean.id = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns._ID));
                     mTodoBean.sortId = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.SORT_ID));
                     mTodoBean.title = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.TITLE));
                     mTodoBean.description = cursor.getString(cursor.getColumnIndex(TodoListContract.TodoListColumns.DESCRIPTION));
                     mTodoBean.alarm = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.ALARM));
-                    mTodoBean.createTime = cursor.getLong(cursor.getColumnIndex(TodoListContract.TodoListColumns.CREATE_TIME));
                     mTodoBean.status = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.STATUS)) == 1;
                     mTodoBean.mark = cursor.getInt(cursor.getColumnIndex(TodoListContract.TodoListColumns.MARK));
                 }
@@ -222,7 +201,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void finish() {
-        UiUtils.hideSoftKeyboard(this,et_title);
+        UiUtils.hideSoftKeyboard(this, et_title);
         if (queryTask != null) {
             DbThreadPool.getThreadPool().cancel(queryTask);
         }

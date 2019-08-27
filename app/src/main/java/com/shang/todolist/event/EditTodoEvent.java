@@ -4,12 +4,12 @@ package com.shang.todolist.event;
  * 编辑Todo的通知事件
  */
 public class EditTodoEvent {
-    public int id;
+    public long id;
 
     public EditTodoEvent() {
     }
 
-    public EditTodoEvent(int id) {
+    public EditTodoEvent(long id) {
         this.id = id;
     }
 }
