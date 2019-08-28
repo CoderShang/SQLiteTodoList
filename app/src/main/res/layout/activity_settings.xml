@@ -4,14 +4,14 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg"
+    android:background="@color/page_bg"
     android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="设置..."
-        android:textColor="#000"
+        android:text="@string/settings"
+        android:textColor="@color/black_color"
         android:textSize="20sp" />
 </FrameLayout>

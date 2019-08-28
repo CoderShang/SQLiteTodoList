@@ -1,11 +1,14 @@
 package com.shang.todolist.ui.adapter;
 
+import android.content.res.ColorStateList;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+
 import com.chad.library.adapter.base.BaseItemDraggableAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.shang.todolist.R;
@@ -28,11 +31,22 @@ public class TodoListAdapter extends BaseItemDraggableAdapter<TodoBean, BaseView
         ImageView iv_alarm = helper.getView(R.id.iv_alarm);
         CheckBox cb_status = helper.getView(R.id.cb_status);
         helper.setText(R.id.tv_title, item.title);
-        if (item.mark == 1) {
-            helper.setGone(R.id.iv_mark, true);
-        } else {
-            helper.setGone(R.id.iv_mark, false);
+        int markId;
+        switch (item.mark) {
+            case 0:
+                markId = R.drawable.ic_urgent_1;
+                break;
+            case 1:
+                markId = R.drawable.ic_urgent_2;
+                break;
+            case 2:
+                markId = R.drawable.ic_urgent_3;
+                break;
+            default:
+                markId = R.drawable.ic_urgent;
+                break;
         }
+        helper.setImageResource(R.id.iv_mark, markId);
         if (TextUtils.isEmpty(item.description)) {
             helper.setGone(R.id.tv_desc, false);
         } else {

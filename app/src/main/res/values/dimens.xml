@@ -1,3 +1,4 @@
 <resources>
+    <dimen name="title_bar_hight">48dp</dimen>
 
 </resources>

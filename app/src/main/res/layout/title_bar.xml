@@ -18,7 +18,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="64dp"
         android:text=""
-        android:textColor="#fff"
+        android:textColor="@color/white_color"
         android:textSize="16sp"
         android:visibility="gone" />
 
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text=""
-        android:textColor="#fff"
+        android:textColor="@color/white_color"
         android:textSize="16sp"
         android:visibility="gone" />
 

@@ -4,7 +4,7 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg"
+    android:background="@color/page_bg"
     android:orientation="vertical">
 
     <com.shang.todolist.ui.widget.TitleBar
@@ -27,10 +27,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/shape_edit_bg"
-            android:hint="待办标题..."
+            android:hint="@string/todo_title"
             android:padding="10dp"
             android:singleLine="true"
-            android:textColor="#000000"
+            android:textColor="@color/black_color"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -42,9 +42,9 @@
             android:layout_marginTop="10dp"
             android:background="@drawable/shape_edit_bg"
             android:gravity="top"
-            android:hint="待办事项描述..."
+            android:hint="@string/todo_description"
             android:padding="10dp"
-            android:textColor="#000000"
+            android:textColor="@color/black_color"
             android:textSize="14sp" />
 
         <TextView
@@ -57,8 +57,8 @@
             android:drawablePadding="3dp"
             android:gravity="center_vertical"
             android:paddingLeft="10dp"
-            android:text="添加提醒"
-            android:textColor="#000000"
+            android:text="@string/add_to_remind"
+            android:textColor="@color/black_color"
             android:textSize="16sp" />
 
         <CheckBox
@@ -68,8 +68,8 @@
             android:layout_height="50dp"
             android:layout_below="@id/et_desc"
             android:layout_marginLeft="-6dp"
-            android:text="标记为重要"
-            android:textColor="#000000"
+            android:text="@string/marke_as_important"
+            android:textColor="@color/black_color"
             android:textSize="16sp" />
 
     </RelativeLayout>

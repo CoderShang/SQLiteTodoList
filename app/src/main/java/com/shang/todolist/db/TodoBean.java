@@ -19,7 +19,7 @@ public class TodoBean implements Parcelable {
     public long alarm;
     //状态 0代办(false)，1已处理(true)
     public boolean status;
-    //是否被重点标记 1:被标记  0:无标记
+    //标记优先级 0:红色    1:橙色   2:蓝色    3:普通任务
     public int mark;
 
 

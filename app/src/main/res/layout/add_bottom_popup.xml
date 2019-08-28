@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#eeeeee"
+    android:background="@color/page_bg"
     android:id="@+id/ll_add"
     android:orientation="vertical"
     android:paddingTop="8dp">
@@ -13,7 +13,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/shape_add_bg"
-        android:hint="准备做什么？"
+        android:hint="@string/what"
         android:lineSpacingExtra="3dp"
         android:padding="10dp"
         android:textSize="16sp"
@@ -29,8 +29,7 @@
             android:layout_height="48dp"
             android:foreground="?android:attr/selectableItemBackground"
             android:padding="12dp"
-            android:src="@drawable/ic_urgent"
-            android:tint="@color/disable" />
+            android:src="@drawable/ic_urgent" />
 
         <ImageView
             android:id="@+id/btn_alarm"
@@ -40,7 +39,7 @@
             android:foreground="?android:attr/selectableItemBackground"
             android:padding="12dp"
             android:src="@drawable/ic_add_alarm"
-            android:tint="@color/disable" />
+            android:tint="@color/gray_color" />
 
         <ImageView
             android:id="@+id/btn_add"
@@ -50,6 +49,6 @@
             android:foreground="?android:attr/selectableItemBackground"
             android:padding="12dp"
             android:src="@drawable/ic_send"
-            android:tint="@color/disable" />
+            android:tint="@color/gray_999" />
     </RelativeLayout>
 </LinearLayout>

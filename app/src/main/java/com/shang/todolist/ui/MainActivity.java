@@ -49,9 +49,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_github = findViewById(R.id.btn_github);
         btn_today = findViewById(R.id.btn_today);
         btn_plan = findViewById(R.id.btn_plan);
-        btn_today.setText("今天  |  " + UiUtils.getTodayAndWeekStr());
+        btn_today.setText(UiUtils.getTodayAndWeekStr());
         fab = findViewById(R.id.fab_add);
-        title_bar.setTitle("今天  |  " + UiUtils.getTodayAndWeekStr());
+        title_bar.setTitle(UiUtils.getTodayAndWeekStr());
         title_bar.setImgLeft(R.drawable.ic_todo);
         title_bar.setImgRight(R.drawable.ic_alarm);
         title_bar.setListener(new TitleBar.TitleBarListener() {
@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void keyBoardHide(int height) {
                 above_view.setVisibility(View.GONE);
+                add_todo_view.closePop();
                 add_todo_view.setVisibility(View.GONE);
                 fab.show();
             }
@@ -165,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.above_view:
+                add_todo_view.et_comment.requestFocus();
                 UiUtils.hideSoftKeyboard(this, add_todo_view.et_comment);
                 break;
             case R.id.btn_today:

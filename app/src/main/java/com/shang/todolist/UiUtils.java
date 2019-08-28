@@ -26,9 +26,21 @@ public class UiUtils {
     }
 
     public static String getDateStr(long time) {
-        String format = "MM月dd日 HH:mm";
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
-        return sdf.format(new Date(time));
+        Calendar mCalendar = Calendar.getInstance();
+        mCalendar.setTimeInMillis(time);
+        int mYear = mCalendar.get(Calendar.YEAR);
+        int mMonth = mCalendar.get(Calendar.MONTH) + 1;
+        int mDay = mCalendar.get(Calendar.DAY_OF_MONTH);
+        int mDayOfWeek = mCalendar.get(Calendar.DAY_OF_WEEK);
+        StringBuilder sbDate = new StringBuilder();
+        Locale locale = App.get().getResources().getConfiguration().locale;
+        String language = locale.getLanguage();
+        if (language.endsWith("zh")) {
+            sbDate.append(mMonth).append("月").append(mDay).append("日").append(" ").append(calculateDayOfWeek(mDayOfWeek));
+        } else {
+            sbDate.append(calculateDayOfWeek(mDayOfWeek)).append(", ").append(convertMonth(mMonth)).append(" ").append(mDay);
+        }
+        return sbDate.toString();
     }
 
     public static String getTodayAndWeekStr() {

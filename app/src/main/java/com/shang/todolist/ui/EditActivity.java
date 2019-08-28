@@ -106,7 +106,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 submit();
             }
         });
-        title_bar.setLeftTitle("编辑");
+        title_bar.setLeftTitle(getString(R.string.edit));
         title_bar.setImgSecond(R.drawable.ic_delete_white);
         if (searchId != -1) {
             queryValue(searchId);
@@ -125,7 +125,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (mTodoBean.mark != 0) {
             cb_mark.setChecked(true);
-            cb_mark.setText("已标记为重要");
+            cb_mark.setText(getString(R.string.marked));
         }
     }
 
@@ -135,7 +135,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private void submit() {
         String title = et_title.getText().toString();
         if (TextUtils.isEmpty(title)) {
-            Snackbar.make(root_layout, "标题不可为空！", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(root_layout, getString(R.string.title_cannot_be_empty), Snackbar.LENGTH_LONG).show();
             return;
         }
         String desc = et_desc.getText().toString();

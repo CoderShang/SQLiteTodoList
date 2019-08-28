@@ -20,6 +20,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -50,6 +51,7 @@ public class TodoFragment extends BaseFragment {
     public static final int WHAT_QUERY_BYID = 2;
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView mRecyclerView;
+    private LinearLayout emptyView;
     private TodoListAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
     private ItemDragAndSwipeCallback mItemDragAndSwipeCallback;
@@ -88,6 +90,11 @@ public class TodoFragment extends BaseFragment {
                     //接收查询数据库返回的结果，更新UI
                     swipeRefresh.setRefreshing(false);
                     mAdapter.setNewData(mTodoList);
+                    if (mTodoList.size() == 0) {
+                        emptyView.setVisibility(View.VISIBLE);
+                    } else {
+                        emptyView.setVisibility(View.GONE);
+                    }
                     break;
                 case WHAT_QUERY_BYID:
                     if (mEditPos == -1) {
@@ -111,9 +118,10 @@ public class TodoFragment extends BaseFragment {
 
     @Override
     protected void initView() {
+        emptyView = find(R.id.empty_view);
         swipeRefresh = find(R.id.swipe_refresh);
         //初始化下拉刷新布局
-        swipeRefresh.setColorSchemeColors(Color.parseColor("#292836"));
+        swipeRefresh.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -121,6 +129,7 @@ public class TodoFragment extends BaseFragment {
             }
         });
         mRecyclerView = find(R.id.rv_todo_list);
+
         //初始化RecyclerView
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         //如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
@@ -210,7 +219,7 @@ public class TodoFragment extends BaseFragment {
                 holder.setGone(R.id.iv_delete, false);
                 holder.setGone(R.id.cb_status, true);
                 holder.setTextColor(R.id.tv_title, ContextCompat.getColor(getContext(), R.color.black_color));
-                holder.setTextColor(R.id.tv_desc, ContextCompat.getColor(getContext(), R.color.disable));
+                holder.setTextColor(R.id.tv_desc, ContextCompat.getColor(getContext(), R.color.gray_999));
                 CardView cardView = holder.getView(R.id.card_view);
                 cardView.setCardBackgroundColor(ContextCompat.getColor(getContext(), R.color.white_color));
                 deleteId = 0;
@@ -223,6 +232,11 @@ public class TodoFragment extends BaseFragment {
                     deleteValue(deleteId);
                     if (pos < mTodoList.size()) {
                         updateSort(pos, mTodoList.size() - 1);
+                    }
+                    if (mTodoList.size() == 0) {
+                        emptyView.setVisibility(View.VISIBLE);
+                    } else {
+                        emptyView.setVisibility(View.GONE);
                     }
                 }
             }
