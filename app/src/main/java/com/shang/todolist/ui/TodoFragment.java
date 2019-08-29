@@ -231,16 +231,12 @@ public class TodoFragment extends BaseFragment {
             @Override
             public void onItemSwiped(RecyclerView.ViewHolder viewHolder, int pos) {
                 swipeRefresh.setEnabled(true);
-                if (mTodoList != null && mTodoList.size() >= pos) {
-                    deleteValue(deleteId);
-                    if (pos < mTodoList.size()) {
-                        updateSort(pos, mTodoList.size() - 1);
-                    }
-                    if (mTodoList.size() == 0) {
-                        emptyView.setVisibility(View.VISIBLE);
-                    } else {
-                        emptyView.setVisibility(View.GONE);
-                    }
+                deleteValue(deleteId);
+                if (pos < mTodoList.size()) {
+                    updateSort(pos, mTodoList.size() - 1);
+                }
+                if (mTodoList.size() == 0) {
+                    queryValue();
                 }
             }
 
@@ -350,21 +346,19 @@ public class TodoFragment extends BaseFragment {
         TodoBean updateBean = mTodoList.get(pos);
         updateBean.status = !updateBean.status;
         int fromPos = pos;
-        int toPos;
+        int toPos = mTodoList.size() - 1;
         mAdapter.remove(fromPos);
         //调换位置
-        if (updateBean.status) {
-            toPos = mTodoList.size() - 1;
-        } else {
+        if (!updateBean.status) {
             toPos = 0;
         }
+        mAdapter.addData(toPos, updateBean);
         if (fromPos > toPos) {
             toPos = fromPos;
             fromPos = 0;
         }
         final int from = fromPos;
         final int to = toPos;
-        mAdapter.addData(to, updateBean);
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
@@ -378,9 +372,7 @@ public class TodoFragment extends BaseFragment {
                     TodoBean bean = mTodoList.get(i);
                     bean.sortId = i;
                     contentValues.put(TodoListContract.TodoListColumns.SORT_ID, bean.sortId);
-                    if (i == to) {
-                        contentValues.put(TodoListContract.TodoListColumns.STATUS, bean.status ? 1 : 0);
-                    }
+                    contentValues.put(TodoListContract.TodoListColumns.STATUS, bean.status ? 1 : 0);
                     resolver.update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues, where, new String[]{bean.id + ""});
                 }
             }
