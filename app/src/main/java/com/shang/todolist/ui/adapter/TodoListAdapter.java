@@ -1,6 +1,7 @@
 package com.shang.todolist.ui.adapter;
 
 import android.content.res.ColorStateList;
+import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
@@ -8,6 +9,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseItemDraggableAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -30,7 +32,9 @@ public class TodoListAdapter extends BaseItemDraggableAdapter<TodoBean, BaseView
         CardView card_view = helper.getView(R.id.card_view);
         ImageView iv_alarm = helper.getView(R.id.iv_alarm);
         CheckBox cb_status = helper.getView(R.id.cb_status);
-        helper.setText(R.id.tv_title, item.title);
+        TextView tv_title = helper.getView(R.id.tv_title);
+        TextView tv_desc = helper.getView(R.id.tv_desc);
+        tv_title.setText(item.title);
         int markId;
         switch (item.mark) {
             case 0:
@@ -61,8 +65,16 @@ public class TodoListAdapter extends BaseItemDraggableAdapter<TodoBean, BaseView
         cb_status.setEnabled(true);
         if (item.status) {
             cb_status.setChecked(true);
+            tv_title.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
+            tv_title.getPaint().setAntiAlias(true);
+            tv_desc.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
+            tv_desc.getPaint().setAntiAlias(true);
         } else {
             cb_status.setChecked(false);
+            tv_title.getPaint().setFlags(0);
+            tv_desc.getPaint().setFlags(0);
+            tv_title.getPaint().setAntiAlias(true);
+            tv_desc.getPaint().setAntiAlias(true);
         }
         helper.addOnClickListener(R.id.card_view);
         helper.addOnClickListener(R.id.cb_status);

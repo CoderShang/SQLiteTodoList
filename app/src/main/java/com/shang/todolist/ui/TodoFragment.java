@@ -5,8 +5,6 @@ import android.content.ContentValues;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorSpace;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,12 +41,14 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TodoFragment extends BaseFragment {
     public static final String KEY_PLAN_ID = "PLAN_ID";
     public static final int WHAT_QUERY = 1;
     public static final int WHAT_QUERY_BYID = 2;
+    public static final int WHAT_UPDATE_STATUS = 3;
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView mRecyclerView;
     private LinearLayout emptyView;
@@ -104,6 +104,9 @@ public class TodoFragment extends BaseFragment {
                     if (bean != null) {
                         mAdapter.setData(mEditPos, bean);
                     }
+                    break;
+                case WHAT_UPDATE_STATUS:
+//                    mAdapter.notifyItemMoved();
                     break;
                 default:
             }
@@ -258,18 +261,15 @@ public class TodoFragment extends BaseFragment {
         mAdapter.setOnItemDragListener(listener);
         mAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
-            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+            public void onItemChildClick(BaseQuickAdapter adapter, View view, final int position) {
                 mEditPos = position;
                 switch (view.getId()) {
                     case R.id.card_view:
                         EditActivity.startActivity(mContext, mTodoList.get(position).id, mEditPos);
                         break;
                     case R.id.cb_status:
-                        TodoBean bean = mTodoList.get(position);
-                        if (bean != null) {
-                            bean.status = !bean.status;
-                            updateStatus(bean);
-                        }
+                        //先修改状态，再修改位置
+                        updateStatus(position);
                         break;
                     default:
                 }
@@ -344,16 +344,45 @@ public class TodoFragment extends BaseFragment {
 
     /**
      * 标记状态
-     *
-     * @param updateBean
      */
-    private void updateStatus(final TodoBean updateBean) {
+    private void updateStatus(final int pos) {
+        //修改状态
+        TodoBean updateBean = mTodoList.get(pos);
+        updateBean.status = !updateBean.status;
+        int fromPos = pos;
+        int toPos;
+        mAdapter.remove(fromPos);
+        //调换位置
+        if (updateBean.status) {
+            toPos = mTodoList.size() - 1;
+        } else {
+            toPos = 0;
+        }
+        if (fromPos > toPos) {
+            toPos = fromPos;
+            fromPos = 0;
+        }
+        final int from = fromPos;
+        final int to = toPos;
+        mAdapter.addData(to, updateBean);
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
+                if (mTodoList == null || mTodoList.size() - 1 < to)
+                    return;
+                ContentResolver resolver = App.get().getContentResolver();
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(TodoListContract.TodoListColumns.STATUS, updateBean.status ? 1 : 0);
-                App.get().getContentResolver().update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues, TodoListContract.TodoListColumns._ID + "=?", new String[]{updateBean.id + ""});
+                String where = TodoListContract.TodoListColumns._ID + "=?";
+                for (int i = from; i <= to; i++) {
+                    contentValues.clear();
+                    TodoBean bean = mTodoList.get(i);
+                    bean.sortId = i;
+                    contentValues.put(TodoListContract.TodoListColumns.SORT_ID, bean.sortId);
+                    if (i == to) {
+                        contentValues.put(TodoListContract.TodoListColumns.STATUS, bean.status ? 1 : 0);
+                    }
+                    resolver.update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues, where, new String[]{bean.id + ""});
+                }
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
