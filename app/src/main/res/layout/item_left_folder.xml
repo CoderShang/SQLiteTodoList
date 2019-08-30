@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/btn_folder"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:drawableLeft="@drawable/ic_folder_special"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="50dp"
+        android:singleLine="true"
+        android:textColor="@color/white_color"
+        android:textSize="14sp"
+        tools:text="文件夹" />
+
+    <ImageView
+        android:id="@+id/iv_arrow"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_vertical|right"
+        android:padding="12dp"
+        android:src="@drawable/ic_arrow_up" />
+</FrameLayout>
