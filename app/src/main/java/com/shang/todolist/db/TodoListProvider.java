@@ -18,15 +18,21 @@ import com.shang.todolist.App;
  */
 public class TodoListProvider extends ContentProvider {
     private static final String TAG = TodoListProvider.class.getSimpleName();
-    private final static int TODOLIST = 0;
-    private final static int MANIFEST = 1;
-    private final static int ALARM = 1;
+    private final static int TODOLIST = 101;
+    private final static int TODOLIST_ADD = 102;
+    private final static int TODOLIST_DELETE = 103;
+    private final static int TODOLIST_UPDATE = 104;
+    private final static int MANIFEST = 201;
+    private final static int ALARM = 301;
 
     private static final UriMatcher sUriMatcher;
 
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(TodoListContract.AUTHORITY, "todolist", TODOLIST);
+        sUriMatcher.addURI(TodoListContract.AUTHORITY, "todolist/add", TODOLIST_ADD);
+        sUriMatcher.addURI(TodoListContract.AUTHORITY, "todolist/delete", TODOLIST_DELETE);
+        sUriMatcher.addURI(TodoListContract.AUTHORITY, "todolist/update", TODOLIST_UPDATE);
         sUriMatcher.addURI(TodoListContract.AUTHORITY, "manifest", MANIFEST);
         sUriMatcher.addURI(TodoListContract.AUTHORITY, "alarm", ALARM);
     }
@@ -74,6 +80,12 @@ public class TodoListProvider extends ContentProvider {
         switch (match) {
             case TODOLIST:
                 return "vnd.android.cursor.dir/todolist";
+            case TODOLIST_ADD:
+                return "vnd.android.cursor.dir/todolist/add";
+            case TODOLIST_DELETE:
+                return "vnd.android.cursor.dir/todolist/delete";
+            case TODOLIST_UPDATE:
+                return "vnd.android.cursor.dir/todolist/update";
             case MANIFEST:
                 return "vnd.android.cursor.dir/manifest";
             default:
@@ -88,9 +100,9 @@ public class TodoListProvider extends ContentProvider {
         SQLiteDatabase db = DbOpenHelper.get().getWritableDatabase();
         Uri uriResult;
         switch (sUriMatcher.match(uri)) {
-            case TODOLIST:
+            case TODOLIST_ADD:
                 rowId = db.insert(DbOpenHelper.TABLE_TODOLIST, TodoListContract.TodoListColumns._ID, values);
-                uriResult = ContentUris.withAppendedId(TodoListContract.TodoListColumns.CONTENT_URI, rowId);
+                uriResult = ContentUris.withAppendedId(TodoListContract.TodoListColumns.CONTENT_URI_ADD, rowId);
                 break;
             case MANIFEST:
                 rowId = db.insert(DbOpenHelper.TABLE_MANIFEST, TodoListContract.ManifestColumns._ID, values);
@@ -108,7 +120,7 @@ public class TodoListProvider extends ContentProvider {
         int count;
         SQLiteDatabase db = DbOpenHelper.get().getWritableDatabase();
         switch (sUriMatcher.match(uri)) {
-            case TODOLIST:
+            case TODOLIST_DELETE:
                 count = db.delete(DbOpenHelper.TABLE_TODOLIST, selection, selectionArgs);
                 break;
             case MANIFEST:
@@ -117,7 +129,7 @@ public class TodoListProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot delete from URL: " + uri);
         }
-//        getContext().getContentResolver().notifyChange(uri, null);
+        getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 
@@ -126,7 +138,7 @@ public class TodoListProvider extends ContentProvider {
         int count;
         SQLiteDatabase db = DbOpenHelper.get().getWritableDatabase();
         switch (sUriMatcher.match(uri)) {
-            case TODOLIST:
+            case TODOLIST_UPDATE:
                 count = db.update(DbOpenHelper.TABLE_TODOLIST, values, selection, selectionArgs);
                 break;
             case MANIFEST:
@@ -137,7 +149,7 @@ public class TodoListProvider extends ContentProvider {
                         "Cannot update URL: " + uri);
             }
         }
-//        getContext().getContentResolver().notifyChange(uri, null);
+        getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 }

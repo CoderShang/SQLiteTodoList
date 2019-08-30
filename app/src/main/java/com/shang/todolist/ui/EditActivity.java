@@ -159,7 +159,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 contentValues.put(TodoListContract.TodoListColumns.DESCRIPTION, updateBean.description);
                 contentValues.put(TodoListContract.TodoListColumns.ALARM, updateBean.alarm);
                 contentValues.put(TodoListContract.TodoListColumns.MARK, updateBean.mark);
-                getContentResolver().update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(updateBean.id)});
+                getContentResolver().update(TodoListContract.TodoListColumns.CONTENT_URI_UPDATE, contentValues, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(updateBean.id)});
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
@@ -170,7 +170,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         Runnable deleteTask = new Runnable() {
             @Override
             public void run() {
-                getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(deleteId)});
+                getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI_DELETE, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(deleteId)});
             }
         };
         DbThreadPool.getThreadPool().exeute(deleteTask);

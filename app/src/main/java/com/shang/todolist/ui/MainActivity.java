@@ -47,9 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         drawer_layout = findViewById(R.id.drawer_layout);
         root_layout = findViewById(R.id.root_layout);
         btn_github = findViewById(R.id.btn_github);
-        btn_today = findViewById(R.id.btn_today);
-        btn_manifest = findViewById(R.id.btn_manifest);
-        btn_today.setText(UiUtils.getTodayAndWeekStr());
+//        btn_today.setText(UiUtils.getTodayAndWeekStr());
         fab = findViewById(R.id.fab_add);
         title_bar.setTitle(UiUtils.getTodayAndWeekStr());
         title_bar.setImgLeft(R.drawable.ic_todo);
@@ -96,8 +94,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         above_view.setOnClickListener(this);
         btn_github.setOnClickListener(this);
-        btn_today.setOnClickListener(this);
-        btn_manifest.setOnClickListener(this);
         //初始化默认的Fragment
         switchFragment(0);
         mSoftKeyBoardListener = new SoftKeyBoardListener(this);
@@ -156,7 +152,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 contentValues.put(TodoListContract.TodoListColumns.ALARM, addBean.alarm);
                 contentValues.put(TodoListContract.TodoListColumns.STATUS, addBean.status ? 1 : 0);
                 contentValues.put(TodoListContract.TodoListColumns.MARK, addBean.mark);
-                getContentResolver().insert(TodoListContract.TodoListColumns.CONTENT_URI, contentValues);
+                contentValues.put(TodoListContract.TodoListColumns.MANIFEST, addBean.manifest);
+                getContentResolver().insert(TodoListContract.TodoListColumns.CONTENT_URI_ADD, contentValues);
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
@@ -180,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_github:
                 Intent intent = new Intent();
                 intent.setAction("android.intent.action.VIEW");
-                Uri content_url = Uri.parse("https://github.com/CoderShang");
+                Uri content_url = Uri.parse("https://github.com/CoderShang/SQLiteTodoList");
                 intent.setData(content_url);
                 startActivity(intent);
                 break;

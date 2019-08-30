@@ -21,12 +21,13 @@ public class TodoBean implements Parcelable {
     public boolean status;
     //标记优先级 0:红色    1:橙色   2:蓝色    3:普通任务
     public int mark;
+    public long manifest;
 
 
     public TodoBean() {
     }
 
-    public TodoBean(long id, int sortId, String title, String description, long alarm, boolean status, int mark) {
+    public TodoBean(long id, int sortId, String title, String description, long alarm, boolean status, int mark, long manifest) {
         this.id = id;
         this.sortId = sortId;
         this.title = title;
@@ -34,6 +35,7 @@ public class TodoBean implements Parcelable {
         this.alarm = alarm;
         this.status = status;
         this.mark = mark;
+        this.manifest = manifest;
     }
 
     @Override
@@ -50,6 +52,7 @@ public class TodoBean implements Parcelable {
         dest.writeLong(this.alarm);
         dest.writeByte(this.status ? (byte) 1 : (byte) 0);
         dest.writeInt(this.mark);
+        dest.writeLong(this.manifest);
     }
 
     protected TodoBean(Parcel in) {
@@ -60,6 +63,7 @@ public class TodoBean implements Parcelable {
         this.alarm = in.readLong();
         this.status = in.readByte() != 0;
         this.mark = in.readInt();
+        this.manifest = in.readLong();
     }
 
     public static final Creator<TodoBean> CREATOR = new Creator<TodoBean>() {

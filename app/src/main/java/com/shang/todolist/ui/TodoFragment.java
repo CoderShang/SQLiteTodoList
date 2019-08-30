@@ -41,14 +41,12 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class TodoFragment extends BaseFragment {
     public static final String KEY_MANIFEST_ID = "MANIFEST_ID";
     public static final int WHAT_QUERY = 1;
     public static final int WHAT_QUERY_BYID = 2;
-    public static final int WHAT_UPDATE_STATUS = 3;
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView mRecyclerView;
     private LinearLayout emptyView;
@@ -104,9 +102,6 @@ public class TodoFragment extends BaseFragment {
                     if (bean != null) {
                         mAdapter.setData(mEditPos, bean);
                     }
-                    break;
-                case WHAT_UPDATE_STATUS:
-//                    mAdapter.notifyItemMoved();
                     break;
                 default:
             }
@@ -165,10 +160,19 @@ public class TodoFragment extends BaseFragment {
         mObserver = new ContentObserver(mHandler) {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
-                if (mTodoList.size() != 0) {
-                    mRecyclerView.smoothScrollToPosition(mTodoList.size() - 1);
+//                if (mTodoList.size() != 0) {
+//                    mRecyclerView.smoothScrollToPosition(0);
+//                }
+                if (uri == null) {
+                    return;
                 }
-                queryValue();
+                if (uri.getPath().contains(TodoListContract.TodoListColumns.addPath)) {
+                    Log.d("Insert:新增了一条数据！", uri.getPath());
+                } else if (uri.getPath().contains(TodoListContract.TodoListColumns.deletePath)) {
+                    Log.d("Delete:有删除被数据啦！", uri.getPath());
+                } else if (uri.getPath().contains(TodoListContract.TodoListColumns.updatePath)) {
+                    Log.d("Update：有数据被修改啦！", uri.getPath());
+                }
             }
         };
         App.get().getApplicationContext().getContentResolver()
@@ -208,12 +212,8 @@ public class TodoFragment extends BaseFragment {
             public void onItemSwipeStart(RecyclerView.ViewHolder viewHolder, int pos) {
                 swipeRefresh.setEnabled(false);
                 BaseViewHolder holder = ((BaseViewHolder) viewHolder);
-                holder.setTextColor(R.id.tv_title, ContextCompat.getColor(getContext(), R.color.white_color));
-                holder.setTextColor(R.id.tv_desc, ContextCompat.getColor(getContext(), R.color.white_color));
                 holder.setGone(R.id.iv_delete, true);
                 holder.setGone(R.id.cb_status, false);
-                CardView cardView = holder.getView(R.id.card_view);
-                cardView.setCardBackgroundColor(ContextCompat.getColor(getContext(), R.color.urgent_red));
                 deleteId = mTodoList.get(pos).id;
             }
 
@@ -223,10 +223,6 @@ public class TodoFragment extends BaseFragment {
                 BaseViewHolder holder = ((BaseViewHolder) viewHolder);
                 holder.setGone(R.id.iv_delete, false);
                 holder.setGone(R.id.cb_status, true);
-                holder.setTextColor(R.id.tv_title, ContextCompat.getColor(getContext(), R.color.black_color));
-                holder.setTextColor(R.id.tv_desc, ContextCompat.getColor(getContext(), R.color.gray_999));
-                CardView cardView = holder.getView(R.id.card_view);
-                cardView.setCardBackgroundColor(ContextCompat.getColor(getContext(), R.color.white_color));
                 deleteId = 0;
             }
 
@@ -266,8 +262,9 @@ public class TodoFragment extends BaseFragment {
                         EditActivity.startActivity(mContext, mTodoList.get(position).id, mEditPos);
                         break;
                     case R.id.cb_status:
-                        //先修改状态，再修改位置
-                        updateStatus(position);
+                        //修改状态
+                        updateStatus(mTodoList.get(position));
+                        mAdapter.notifyItemChanged(position);
                         break;
                     default:
                 }
@@ -333,7 +330,7 @@ public class TodoFragment extends BaseFragment {
                     TodoBean bean = mTodoList.get(i);
                     bean.sortId = i;
                     contentValues.put(TodoListContract.TodoListColumns.SORT_ID, bean.sortId);
-                    resolver.update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues, where, new String[]{bean.id + ""});
+                    resolver.update(TodoListContract.TodoListColumns.CONTENT_URI_UPDATE, contentValues, where, new String[]{bean.id + ""});
                 }
             }
         };
@@ -343,40 +340,18 @@ public class TodoFragment extends BaseFragment {
     /**
      * 标记状态
      */
-    private void updateStatus(final int pos) {
-        //修改状态
-        TodoBean updateBean = mTodoList.get(pos);
+    private void updateStatus(final TodoBean updateBean) {
         updateBean.status = !updateBean.status;
-        int fromPos = pos;
-        int toPos = mTodoList.size() - 1;
-        mAdapter.remove(fromPos);
-        //调换位置
-        if (!updateBean.status) {
-            toPos = 0;
-        }
-        mAdapter.addData(toPos, updateBean);
-        if (fromPos > toPos) {
-            toPos = fromPos;
-            fromPos = 0;
-        }
-        final int from = fromPos;
-        final int to = toPos;
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
-                if (mTodoList == null || mTodoList.size() - 1 < to)
+                if (mTodoList == null || mTodoList.size() == 0)
                     return;
                 ContentResolver resolver = App.get().getContentResolver();
                 ContentValues contentValues = new ContentValues();
                 String where = TodoListContract.TodoListColumns._ID + "=?";
-                for (int i = from; i <= to; i++) {
-                    contentValues.clear();
-                    TodoBean bean = mTodoList.get(i);
-                    bean.sortId = i;
-                    contentValues.put(TodoListContract.TodoListColumns.SORT_ID, bean.sortId);
-                    contentValues.put(TodoListContract.TodoListColumns.STATUS, bean.status ? 1 : 0);
-                    resolver.update(TodoListContract.TodoListColumns.CONTENT_URI, contentValues, where, new String[]{bean.id + ""});
-                }
+                contentValues.put(TodoListContract.TodoListColumns.STATUS, updateBean.status ? 1 : 0);
+                resolver.update(TodoListContract.TodoListColumns.CONTENT_URI_UPDATE, contentValues, where, new String[]{updateBean.id + ""});
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
@@ -419,7 +394,7 @@ public class TodoFragment extends BaseFragment {
         Runnable deleteTask = new Runnable() {
             @Override
             public void run() {
-                App.get().getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(id)});
+                App.get().getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI_DELETE, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(id)});
             }
         };
         DbThreadPool.getThreadPool().exeute(deleteTask);
@@ -445,9 +420,6 @@ public class TodoFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(DeleteTodoEvent event) {
         if (event != null) {
-            if (event.pos <= -1 || mTodoList == null || mTodoList.size() == 0) {
-                return;
-            }
             mAdapter.remove(event.pos);
             if (event.pos < mTodoList.size()) {
                 updateSort(event.pos, mTodoList.size() - 1);

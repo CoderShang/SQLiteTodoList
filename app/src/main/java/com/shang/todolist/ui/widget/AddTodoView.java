@@ -156,7 +156,7 @@ public class AddTodoView extends LinearLayout implements View.OnClickListener {
             case R.id.btn_add:
                 if (listener != null) {
                     mBean = new TodoBean(Calendar.getInstance().getTimeInMillis(),
-                            0, et_comment.getText().toString(), "", alarmTime, false, markFlag);
+                            0, et_comment.getText().toString(), "", alarmTime, false, markFlag, 0);
                     listener.onCreated(mBean);
                 }
                 break;

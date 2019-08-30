@@ -34,23 +34,9 @@ public class TodoListAdapter extends BaseItemDraggableAdapter<TodoBean, BaseView
         CheckBox cb_status = helper.getView(R.id.cb_status);
         TextView tv_title = helper.getView(R.id.tv_title);
         TextView tv_desc = helper.getView(R.id.tv_desc);
+        tv_title.getPaint().setAntiAlias(true);
+        tv_desc.getPaint().setAntiAlias(true);
         tv_title.setText(item.title);
-        int markId;
-        switch (item.mark) {
-            case 0:
-                markId = R.drawable.ic_urgent_1;
-                break;
-            case 1:
-                markId = R.drawable.ic_urgent_2;
-                break;
-            case 2:
-                markId = R.drawable.ic_urgent_3;
-                break;
-            default:
-                markId = R.drawable.ic_urgent;
-                break;
-        }
-        helper.setImageResource(R.id.iv_mark, markId);
         if (TextUtils.isEmpty(item.description)) {
             helper.setGone(R.id.tv_desc, false);
         } else {
@@ -60,22 +46,46 @@ public class TodoListAdapter extends BaseItemDraggableAdapter<TodoBean, BaseView
         if (item.alarm == 0) {
             iv_alarm.setVisibility(View.GONE);
         } else {
-            iv_alarm.setVisibility(View.VISIBLE);
         }
+        iv_alarm.setVisibility(View.VISIBLE);
         cb_status.setEnabled(true);
+        int card_color;
+        int status_color;
         if (item.status) {
+            status_color = ContextCompat.getColor(mContext, R.color.gray_disable);
+            tv_title.setTextColor(status_color);
+            tv_desc.setTextColor(status_color);
+            iv_alarm.setImageTintList(ColorStateList.valueOf(status_color));
             cb_status.setChecked(true);
+            cb_status.setButtonTintList(ColorStateList.valueOf(status_color));
             tv_title.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
-            tv_title.getPaint().setAntiAlias(true);
             tv_desc.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
-            tv_desc.getPaint().setAntiAlias(true);
+            card_color = R.color.finish;
         } else {
+            status_color = ContextCompat.getColor(mContext, R.color.white_color);
+            tv_title.setTextColor(status_color);
+            tv_desc.setTextColor(ContextCompat.getColor(mContext, R.color.desc_color));
+            iv_alarm.setImageTintList(ColorStateList.valueOf(status_color));
             cb_status.setChecked(false);
+            cb_status.setButtonTintList(ColorStateList.valueOf(status_color));
             tv_title.getPaint().setFlags(0);
             tv_desc.getPaint().setFlags(0);
-            tv_title.getPaint().setAntiAlias(true);
-            tv_desc.getPaint().setAntiAlias(true);
+            switch (item.mark) {
+                case 0:
+                    card_color = R.color.urgent_red;
+                    break;
+                case 1:
+                    card_color = R.color.urgent_orange;
+                    break;
+                case 2:
+                    card_color = R.color.urgent_blue;
+                    break;
+                default:
+                    card_color = R.color.urgent_normal;
+                    break;
+            }
         }
+        card_view.setCardBackgroundColor(ContextCompat.getColor(mContext, card_color));
         helper.addOnClickListener(R.id.card_view);
         helper.addOnClickListener(R.id.cb_status);
     }

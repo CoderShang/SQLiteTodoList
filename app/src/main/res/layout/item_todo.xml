@@ -1,42 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="70dp"
     android:foreground="?android:attr/selectableItemBackground"
-    card_view:cardBackgroundColor="@color/white_color"
-    card_view:cardCornerRadius="8dp"
-    card_view:cardUseCompatPadding="true">
+    app:cardBackgroundColor="@color/urgent_normal"
+    app:cardCornerRadius="8dp"
+    app:cardUseCompatPadding="true">
 
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="10dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp">
+        android:paddingLeft="10dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:orientation="vertical"
-            android:paddingRight="80dp">
+            android:paddingTop="6dp"
+            android:paddingRight="80dp"
+            android:paddingBottom="6dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical">
-
-                <ImageView
-                    android:id="@+id/iv_mark"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center_vertical"
-                    android:paddingRight="3dp"
-                    android:src="@drawable/ic_urgent" />
 
                 <TextView
                     android:id="@+id/tv_title"
@@ -44,7 +36,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:singleLine="true"
-                    android:textColor="@color/black_color"
+                    android:textColor="@color/white_color"
                     android:textSize="16dp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -56,15 +48,16 @@
                 android:layout_marginLeft="2dp"
                 android:gravity="center_vertical"
                 android:singleLine="true"
-                android:textColor="@color/gray_999"
+                android:textColor="@color/desc_color"
                 android:textSize="12sp"
                 android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical|right"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <ImageView
@@ -79,7 +72,8 @@
             <CheckBox
                 android:id="@+id/cb_status"
                 android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_height="match_parent"
+                android:buttonTint="@color/white_color"
                 android:gravity="center"
                 android:textSize="16sp" />
 

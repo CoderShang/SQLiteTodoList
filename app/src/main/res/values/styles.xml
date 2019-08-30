@@ -21,7 +21,14 @@
     <style name="CustomToolbar" parent="Widget.AppCompat.Toolbar">
         <item name="contentInsetStart">0dp</item><!-- 设置该属性边距为0dp-->
     </style>
-
+    <style name="MyCheckBox" parent="@android:style/Widget.Material.CompoundButton.CheckBox">
+        <item name="android:colorControlActivated">@color/white_color</item>
+        <item name="android:colorControlNormal">@color/white_color</item>
+    </style>
+    <style name="MyCheckBoxDisable" parent="@android:style/Widget.Material.CompoundButton.CheckBox">
+        <item name="android:colorControlActivated">@color/gray_disable</item>
+        <item name="android:colorControlNormal">@color/gray_disable</item>
+    </style>
     <style name="ToolBarPopupTheme" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
         <!-- 设置popupMenu背景颜色-->
         <item name="android:colorBackground">@color/colorPrimary</item>

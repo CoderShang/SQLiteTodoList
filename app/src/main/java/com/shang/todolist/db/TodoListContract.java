@@ -18,10 +18,17 @@ public final class TodoListContract {
     }
 
     public interface TodoListColumns extends BaseColumns {
+        String queryPath = "/todolist";
+        String addPath = "/todolist/add";
+        String deletePath = "/todolist/delete";
+        String updatePath = "/todolist/update";
         /**
          * The content:// style URL for this table.
          */
-        Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/todolist");
+        Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + queryPath);
+        Uri CONTENT_URI_ADD = Uri.parse("content://" + AUTHORITY + addPath);
+        Uri CONTENT_URI_DELETE = Uri.parse("content://" + AUTHORITY + deletePath);
+        Uri CONTENT_URI_UPDATE = Uri.parse("content://" + AUTHORITY + updatePath);
 
         String _ID = "_ID";
         /**
@@ -48,6 +55,7 @@ public final class TodoListContract {
          * 是否被重点标记 1:被标记  0:无标记
          */
         String MARK = "MARK";
+        String MANIFEST = "MANIFEST";
     }
 
     public interface ManifestColumns extends BaseColumns {
