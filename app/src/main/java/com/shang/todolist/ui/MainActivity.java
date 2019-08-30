@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final int THIRD = 2;
     private TitleBar title_bar;
     private FloatingActionButton fab;
-    private TextView btn_github, btn_today, btn_plan;
+    private TextView btn_github, btn_today, btn_manifest;
     private DrawerLayout drawer_layout;
     private FrameLayout root_layout;
     private AddTodoView add_todo_view;
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         root_layout = findViewById(R.id.root_layout);
         btn_github = findViewById(R.id.btn_github);
         btn_today = findViewById(R.id.btn_today);
-        btn_plan = findViewById(R.id.btn_plan);
+        btn_manifest = findViewById(R.id.btn_manifest);
         btn_today.setText(UiUtils.getTodayAndWeekStr());
         fab = findViewById(R.id.fab_add);
         title_bar.setTitle(UiUtils.getTodayAndWeekStr());
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         above_view.setOnClickListener(this);
         btn_github.setOnClickListener(this);
         btn_today.setOnClickListener(this);
-        btn_plan.setOnClickListener(this);
+        btn_manifest.setOnClickListener(this);
         //初始化默认的Fragment
         switchFragment(0);
         mSoftKeyBoardListener = new SoftKeyBoardListener(this);
@@ -173,8 +173,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 title_bar.setTitle(btn_today.getText().toString());
                 switchFragment(0);
                 break;
-            case R.id.btn_plan:
-                title_bar.setTitle(btn_plan.getText().toString());
+            case R.id.btn_manifest:
+                title_bar.setTitle(btn_manifest.getText().toString());
                 switchFragment(1);
                 break;
             case R.id.btn_github:

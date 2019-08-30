@@ -45,7 +45,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class TodoFragment extends BaseFragment {
-    public static final String KEY_PLAN_ID = "PLAN_ID";
+    public static final String KEY_MANIFEST_ID = "MANIFEST_ID";
     public static final int WHAT_QUERY = 1;
     public static final int WHAT_QUERY_BYID = 2;
     public static final int WHAT_UPDATE_STATUS = 3;
@@ -57,7 +57,7 @@ public class TodoFragment extends BaseFragment {
     private ItemDragAndSwipeCallback mItemDragAndSwipeCallback;
     private int mStatus = -1;//查询条件，按照状态查找
     private int mEditPos = -1;//被点击编辑的Item位置
-    private long planId;//外面传递过来的计划ID，做查询条件
+    private long manifestId;//外面传递过来的清单ID，做查询条件
     private List<TodoBean> mTodoList = new ArrayList<>();
     private ContentObserver mObserver;
     private int fromPos;//记录排序from 和 to 的位置
@@ -67,12 +67,12 @@ public class TodoFragment extends BaseFragment {
     /**
      * 构造方法
      *
-     * @param planId 计划ID（待办存在于一个计划当中）
+     * @param mId 清单ID（待办存在于一个清单当中）
      * @return
      */
-    public static TodoFragment newInstance(long planId) {
+    public static TodoFragment newInstance(long mId) {
         Bundle args = new Bundle();
-        args.putLong("KEY_PLAN_ID", planId);
+        args.putLong(KEY_MANIFEST_ID, mId);
         TodoFragment fragment = new TodoFragment();
         fragment.setArguments(args);
         return fragment;
@@ -154,7 +154,7 @@ public class TodoFragment extends BaseFragment {
         initListener();
         Bundle bundle = getArguments();
         if (bundle != null) {
-            planId = bundle.getLong(KEY_PLAN_ID);
+            manifestId = bundle.getLong(KEY_MANIFEST_ID);
         }
         //查询数据库
         queryValue();
@@ -174,6 +174,7 @@ public class TodoFragment extends BaseFragment {
         App.get().getApplicationContext().getContentResolver()
                 .registerContentObserver(TodoListContract.TodoListColumns.CONTENT_URI,
                         true, mObserver);
+        //排序的监听
         OnItemDragListener listener = new OnItemDragListener() {
             @Override
             public void onItemDragStart(RecyclerView.ViewHolder viewHolder, int pos) {
@@ -201,6 +202,7 @@ public class TodoFragment extends BaseFragment {
                 }
             }
         };
+        //侧滑删除的监听
         OnItemSwipeListener onItemSwipeListener = new OnItemSwipeListener() {
             @Override
             public void onItemSwipeStart(RecyclerView.ViewHolder viewHolder, int pos) {

@@ -49,4 +49,25 @@ public final class TodoListContract {
          */
         String MARK = "MARK";
     }
+
+    public interface ManifestColumns extends BaseColumns {
+        /**
+         * The content:// style URL for this table.
+         */
+        Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/manifest");
+
+        String _ID = "_ID";
+        /**
+         * 用于排序的ID
+         */
+        String SORT_ID = "SORT_ID";
+        /**
+         * 清单名称
+         */
+        String NAME = "NAME";
+        /**
+         * 文件夹ID
+         */
+        String FOLDER = "FOLDER";
+    }
 }

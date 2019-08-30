@@ -53,87 +53,14 @@
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.widget.NestedScrollView
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_todo_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/fl_github"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:overScrollMode="never"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:listitem="@layout/item_left_fun" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/btn_today"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:drawableLeft="@drawable/ic_today"
-                    android:drawablePadding="10dp"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:textColor="@color/white_color"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/btn_folder"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:drawableLeft="@drawable/ic_folder_special"
-                    android:drawablePadding="10dp"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:text="@string/folder"
-                    android:textColor="@color/white_color"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/btn_plan"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:drawableLeft="@drawable/ic_plan"
-                    android:drawablePadding="10dp"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:text="某某计划"
-                    android:textColor="@color/white_color"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/btn_plan_add"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:drawableLeft="@drawable/ic_add_circle"
-                    android:drawablePadding="10dp"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:text="@string/add_a_plan"
-                    android:textColor="@color/white_color"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/btn_waste_basket"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:drawableLeft="@drawable/ic_delete_white"
-                    android:drawablePadding="10dp"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:text="@string/waste_basket"
-                    android:textColor="@color/white_color"
-                    android:textSize="14sp" />
-            </LinearLayout>
-        </android.support.v4.widget.NestedScrollView>
     </android.support.design.widget.CoordinatorLayout>
 
     <FrameLayout

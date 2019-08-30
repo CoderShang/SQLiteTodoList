@@ -19,12 +19,16 @@ import com.shang.todolist.App;
 public class TodoListProvider extends ContentProvider {
     private static final String TAG = TodoListProvider.class.getSimpleName();
     private final static int TODOLIST = 0;
+    private final static int MANIFEST = 1;
+    private final static int ALARM = 1;
 
     private static final UriMatcher sUriMatcher;
 
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(TodoListContract.AUTHORITY, "todolist", TODOLIST);
+        sUriMatcher.addURI(TodoListContract.AUTHORITY, "manifest", MANIFEST);
+        sUriMatcher.addURI(TodoListContract.AUTHORITY, "alarm", ALARM);
     }
 
     @Override
@@ -42,7 +46,18 @@ public class TodoListProvider extends ContentProvider {
             Log.d(TAG, "mOpenHelper is null!!!");
             return null;
         }
-        Cursor cursor = db.query(DbOpenHelper.TABLE_TODOLIST, projection, selection, selectionArgs, null, null, sortOrder, null);
+        Cursor cursor;
+        switch (sUriMatcher.match(uri)) {
+            case TODOLIST:
+                cursor = db.query(DbOpenHelper.TABLE_TODOLIST, projection, selection, selectionArgs, null, null, sortOrder, null);
+                break;
+            case MANIFEST:
+                cursor = db.query(DbOpenHelper.TABLE_MANIFEST, projection, selection, selectionArgs, null, null, sortOrder, null);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URL");
+        }
+
         if (cursor == null) {
             Log.d(TAG, "TodoList.query: failed");
         } else {
@@ -59,6 +74,8 @@ public class TodoListProvider extends ContentProvider {
         switch (match) {
             case TODOLIST:
                 return "vnd.android.cursor.dir/todolist";
+            case MANIFEST:
+                return "vnd.android.cursor.dir/manifest";
             default:
                 throw new IllegalArgumentException("Unknown URL");
         }
@@ -75,6 +92,10 @@ public class TodoListProvider extends ContentProvider {
                 rowId = db.insert(DbOpenHelper.TABLE_TODOLIST, TodoListContract.TodoListColumns._ID, values);
                 uriResult = ContentUris.withAppendedId(TodoListContract.TodoListColumns.CONTENT_URI, rowId);
                 break;
+            case MANIFEST:
+                rowId = db.insert(DbOpenHelper.TABLE_MANIFEST, TodoListContract.ManifestColumns._ID, values);
+                uriResult = ContentUris.withAppendedId(TodoListContract.ManifestColumns.CONTENT_URI, rowId);
+                break;
             default:
                 throw new IllegalArgumentException("Cannot insert from URL: " + uri);
         }
@@ -90,6 +111,9 @@ public class TodoListProvider extends ContentProvider {
             case TODOLIST:
                 count = db.delete(DbOpenHelper.TABLE_TODOLIST, selection, selectionArgs);
                 break;
+            case MANIFEST:
+                count = db.delete(DbOpenHelper.TABLE_MANIFEST, selection, selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Cannot delete from URL: " + uri);
         }
@@ -104,6 +128,9 @@ public class TodoListProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case TODOLIST:
                 count = db.update(DbOpenHelper.TABLE_TODOLIST, values, selection, selectionArgs);
+                break;
+            case MANIFEST:
+                count = db.update(DbOpenHelper.TABLE_MANIFEST, values, selection, selectionArgs);
                 break;
             default: {
                 throw new UnsupportedOperationException(

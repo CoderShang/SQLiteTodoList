@@ -13,7 +13,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
     public static final int DB_VERSION = 1;
     public static final String TABLE_TODOLIST = "TODOLIST";
     public static final String TABLE_FOLDER = "FOLDER";
-    public static final String TABLE_PLAN = "PLAN";
+    public static final String TABLE_MANIFEST = "MANIFEST";
     public static final String TABLE_ALARM = "ALARM";
 
     private static DbOpenHelper helper;
@@ -56,10 +56,11 @@ public class DbOpenHelper extends SQLiteOpenHelper {
     }
 
     private void createAllTables(SQLiteDatabase db) {
-        createCompany(db);
+        createTodoList(db);
+        createManifest(db);
     }
 
-    private void createCompany(SQLiteDatabase db) {
+    private void createTodoList(SQLiteDatabase db) {
         StringBuilder sql = new StringBuilder();
         sql.append("CREATE TABLE IF NOT EXISTS TODOLIST(");
         sql.append("_ID  INTEGER64 PRIMARY KEY,");
@@ -69,6 +70,16 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         sql.append("ALARM        INTEGER64,");
         sql.append("STATUS       INTEGER,");
         sql.append("MARK         INTEGER);");
+        db.execSQL(sql.toString());
+    }
+
+    private void createManifest(SQLiteDatabase db) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("CREATE TABLE IF NOT EXISTS MANIFEST(");
+        sql.append("_ID  INTEGER64 PRIMARY KEY,");
+        sql.append("SORT_ID     INTEGER    NOT NULL,");
+        sql.append("name        TEXT    NOT NULL,");
+        sql.append("FOLDER       INTEGER64);");
         db.execSQL(sql.toString());
     }
 
