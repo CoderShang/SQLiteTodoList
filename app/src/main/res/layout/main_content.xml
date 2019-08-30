@@ -28,7 +28,7 @@
     <!--app:bnbBackgroundColor="@color/colorPrimary"-->
     <!--app:bnbInactiveColor="@color/gray_color" />-->
 
-    <android.support.design.widget.FloatingActionButton
+    <com.shang.todolist.ui.widget.MyFloatingActionButton
         android:id="@+id/fab_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
