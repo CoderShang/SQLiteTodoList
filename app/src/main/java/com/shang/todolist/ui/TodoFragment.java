@@ -321,7 +321,7 @@ public class TodoFragment extends BaseFragment {
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
-                if (mTodoList == null || mTodoList.size() - 1 < to)
+                if (mTodoList == null || mTodoList.size() == 0 || mTodoList.size() - 1 < to)
                     return;
                 ContentResolver resolver = App.get().getContentResolver();
                 ContentValues contentValues = new ContentValues();
