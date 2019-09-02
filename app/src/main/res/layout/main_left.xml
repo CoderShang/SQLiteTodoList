@@ -7,71 +7,14 @@
     android:layout_gravity="start"
     android:background="@color/colorPrimary">
 
-    <android.support.design.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="48dp">
-
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/app_bar"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:theme="@style/AppTheme.MyAppBarOverlay">
-
-            <android.support.design.widget.CollapsingToolbarLayout
-                android:id="@+id/toolbar_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:contentScrim="?attr/colorPrimary"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
-                <android.support.v7.widget.Toolbar
-                    android:id="@+id/toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    app:contentInsetEnd="0dp"
-                    app:contentInsetStart="0dp"
-                    app:layout_collapseMode="pin"
-                    app:popupTheme="@style/AppTheme.PopupOverlay">
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-
-                        <ImageView
-                            android:id="@+id/btn_settings"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:layout_gravity="right"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:padding="12dp"
-                            android:src="@drawable/ic_settings"
-                            android:tint="@color/white_color" />
-                    </FrameLayout>
-                </android.support.v7.widget.Toolbar>
-            </android.support.design.widget.CollapsingToolbarLayout>
-        </android.support.design.widget.AppBarLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_todo_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:overScrollMode="never"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/item_left_fun" />
-
-    </android.support.design.widget.CoordinatorLayout>
-
     <FrameLayout
         android:id="@+id/fl_github"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/btn_github"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:drawableLeft="@drawable/ic_github"
             android:drawablePadding="6dp"
@@ -85,11 +28,22 @@
             android:textStyle="bold" />
 
         <ImageView
-            android:id="@+id/iv_arrow"
+            android:id="@+id/btn_settings"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_gravity="center_vertical|right"
+            android:layout_gravity="right"
+            android:foreground="?android:attr/selectableItemBackground"
             android:padding="12dp"
-            android:src="@drawable/ic_star" />
+            android:src="@drawable/ic_settings"
+            android:tint="@color/white_color" />
     </FrameLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_manifest"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="48dp"
+        android:overScrollMode="never"
+        tools:listitem="@layout/item_left_fun" />
+
 </FrameLayout>

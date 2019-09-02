@@ -53,9 +53,9 @@ public class UiUtils {
         Locale locale = App.get().getResources().getConfiguration().locale;
         String language = locale.getLanguage();
         if (language.endsWith("zh")) {
-            sbDate.append(mMonth).append("月").append(mDay).append("日").append(" ").append(calculateDayOfWeek(mDayOfWeek));
+            sbDate.append("今天 | ").append(mMonth).append("月").append(mDay).append("日").append(" ").append(calculateDayOfWeek(mDayOfWeek));
         } else {
-            sbDate.append(calculateDayOfWeek(mDayOfWeek)).append(", ").append(convertMonth(mMonth)).append(" ").append(mDay);
+            sbDate.append("Today | ").append(calculateDayOfWeek(mDayOfWeek)).append(", ").append(convertMonth(mMonth)).append(" ").append(mDay);
         }
         return sbDate.toString();
     }

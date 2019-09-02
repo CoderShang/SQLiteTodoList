@@ -1,0 +1,33 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_add"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/page_bg"
+    android:orientation="vertical"
+    android:paddingTop="8dp">
+
+    <EditText
+        android:id="@+id/et_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:drawablePadding="3dp"
+        android:drawableLeft="@drawable/ic_manifest"
+        android:drawableTint="@color/colorPrimary"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/shape_add_bg"
+        android:hint="@string/what_manifest"
+        android:lineSpacingExtra="3dp"
+        android:padding="10dp"
+        android:textSize="16sp"/>
+
+    <ImageView
+        android:id="@+id/btn_add"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="right"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="12dp"
+        android:src="@drawable/ic_done"
+        android:tint="@color/gray_999" />
+</LinearLayout>

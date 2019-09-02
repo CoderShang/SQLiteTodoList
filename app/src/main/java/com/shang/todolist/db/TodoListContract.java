@@ -74,8 +74,8 @@ public final class TodoListContract {
          */
         String NAME = "NAME";
         /**
-         * 文件夹ID
+         * 待办的数量
          */
-        String FOLDER = "FOLDER";
+        String NUM = "NUM";
     }
 }

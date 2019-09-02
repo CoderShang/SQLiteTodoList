@@ -15,7 +15,8 @@
     <string name="add_to_remind">添加提醒</string>
     <string name="settings">设置</string>
     <!--<string name="what">What are you going to do?</string>-->
-    <string name="what">准备做什么？</string>
+    <string name="what_todo">准备做什么？</string>
+    <string name="what_manifest">请输入清单名称</string>
     <string name="folder">文件夹</string>
     <string name="add_a_manifest">添加清单</string>
     <string name="waste_basket">废纸篓</string>

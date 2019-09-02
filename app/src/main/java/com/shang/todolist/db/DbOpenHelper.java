@@ -12,7 +12,6 @@ public class DbOpenHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "todo_list.db";
     public static final int DB_VERSION = 1;
     public static final String TABLE_TODOLIST = "TODOLIST";
-    public static final String TABLE_FOLDER = "FOLDER";
     public static final String TABLE_MANIFEST = "MANIFEST";
     public static final String TABLE_ALARM = "ALARM";
 
@@ -79,8 +78,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         sql.append("CREATE TABLE IF NOT EXISTS MANIFEST(");
         sql.append("_ID  INTEGER64 PRIMARY KEY,");
         sql.append("SORT_ID     INTEGER    NOT NULL,");
-        sql.append("name        TEXT    NOT NULL,");
-        sql.append("FOLDER       INTEGER64);");
+        sql.append("NAME        TEXT    NOT NULL);");
         db.execSQL(sql.toString());
     }
 
@@ -92,6 +90,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         try {
             database.beginTransaction();
             database.execSQL("delete from " + DbOpenHelper.TABLE_TODOLIST + ";");
+            database.execSQL("delete from " + DbOpenHelper.TABLE_MANIFEST + ";");
 //            database.execSQL("delete from xxx;");
 //            database.execSQL("delete from xxx;");
 //            database.execSQL("delete from xxx;");

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="?android:attr/selectableItemBackground">
+    android:paddingBottom="100dp">
 
     <TextView
         android:id="@+id/btn_manifest_add"
@@ -18,32 +17,4 @@
         android:text="@string/add_a_manifest"
         android:textColor="@color/white_color"
         android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/btn_waste_basket"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_below="@id/btn_manifest_add"
-        android:drawableLeft="@drawable/ic_delete_white"
-        android:drawablePadding="10dp"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:gravity="center_vertical"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:text="@string/waste_basket"
-        android:textColor="@color/white_color"
-        android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/tv_waste_num"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_below="@id/btn_manifest_add"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="16dp"
-        android:gravity="center"
-        android:textColor="@color/white_color"
-        android:textSize="14sp"
-        tools:text="999" />
-
 </RelativeLayout>

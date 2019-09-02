@@ -34,7 +34,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_add_todo" />
+        android:src="@drawable/ic_add_todo"
+        app:backgroundTint="@color/colorAccent"
+        app:rippleColor="@color/colorAccent" />
 
     <View
         android:id="@+id/above_view"
@@ -45,6 +47,13 @@
 
     <com.shang.todolist.ui.widget.AddTodoView
         android:id="@+id/add_todo_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:visibility="gone" />
+
+    <com.shang.todolist.ui.widget.AddManifestView
+        android:id="@+id/add_manifest_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"

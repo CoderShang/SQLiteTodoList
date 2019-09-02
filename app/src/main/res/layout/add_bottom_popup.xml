@@ -1,8 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_add"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/page_bg"
-    android:id="@+id/ll_add"
     android:orientation="vertical"
     android:paddingTop="8dp">
 
@@ -13,7 +13,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/shape_add_bg"
-        android:hint="@string/what"
+        android:hint="@string/what_todo"
         android:lineSpacingExtra="3dp"
         android:padding="10dp"
         android:textSize="16sp"
