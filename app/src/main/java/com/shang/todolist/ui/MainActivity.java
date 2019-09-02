@@ -1,12 +1,10 @@
 package com.shang.todolist.ui;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -16,15 +14,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.core.CenterPopupView;
-import com.lxj.xpopup.enums.PopupAnimation;
 import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
 import com.shang.todolist.db.DbThreadPool;
@@ -32,7 +26,6 @@ import com.shang.todolist.db.ManifestBean;
 import com.shang.todolist.db.TodoBean;
 import com.shang.todolist.db.TodoListContract;
 import com.shang.todolist.ui.adapter.MainAdapter;
-import com.shang.todolist.ui.adapter.TodoListAdapter;
 import com.shang.todolist.ui.widget.AddManifestView;
 import com.shang.todolist.ui.widget.AddTodoView;
 import com.shang.todolist.ui.widget.SoftKeyBoardListener;
@@ -62,7 +55,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int lastPos = -1;
     private List<ManifestBean> mManifestList = new ArrayList<>();
     private SoftKeyBoardListener mSoftKeyBoardListener;
-private int clickId;
+    private int clickId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +102,7 @@ private int clickId;
                 }, 500);
             }
         });
-        add_manifest_view.setListener(new AddManifestView.OnAddListener(){
+        add_manifest_view.setListener(new AddManifestView.OnAddListener() {
             @Override
             public void onCreated(ManifestBean bean) {
                 UiUtils.hideSoftKeyboard(MainActivity.this, add_manifest_view.et_comment);
@@ -125,12 +119,9 @@ private int clickId;
             @Override
             public void onClick(View view) {
                 fab.hide();
+                clickId = view.getId();
                 add_todo_view.et_comment.requestFocus();
                 UiUtils.showSoftKeyboard(MainActivity.this, add_todo_view.et_comment);
-//                new XPopup.Builder(MainActivity.this)
-//                        .moveUpToKeyboard(false) //如果不加这个，评论弹窗会移动到软键盘上面
-//                        .asCustom(new ZhihuCommentPopup(MainActivity.this)/*.enableDrag(false)*/)
-//                        .show();
             }
         });
         above_view.setOnClickListener(this);
@@ -138,25 +129,32 @@ private int clickId;
         //初始化默认的Fragment
         switchFragment(0);
         mSoftKeyBoardListener = new SoftKeyBoardListener(this);
-//        mSoftKeyBoardListener.setListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
-//
-//            @Override
-//            public void keyBoardShow(int height) {
-////                add_todo_view.et_comment.setSelection(add_todo_view.et_comment.getText().length());
-//                above_view.setVisibility(View.VISIBLE);
-//                add_todo_view.setVisibility(View.VISIBLE);
-//                add_manifest_view.setVisibility(View.VISIBLE);
-//            }
-//
-//            @Override
-//            public void keyBoardHide(int height) {
-//                above_view.setVisibility(View.GONE);
-//                add_todo_view.closePop();
-//                add_todo_view.setVisibility(View.GONE);
-//                add_manifest_view.setVisibility(View.GONE);
-//                fab.show();
-//            }
-//        });
+        mSoftKeyBoardListener.setListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+
+            @Override
+            public void keyBoardShow(int height) {
+                above_view.setVisibility(View.VISIBLE);
+                if (clickId == R.id.btn_manifest_add) {
+                    add_manifest_view.setVisibility(View.VISIBLE);
+                    add_manifest_view.et_comment.setSelection(add_manifest_view.et_comment.getText().length());
+                } else {
+                    add_todo_view.setVisibility(View.VISIBLE);
+                    add_todo_view.et_comment.setSelection(add_todo_view.et_comment.getText().length());
+                }
+            }
+
+            @Override
+            public void keyBoardHide(int height) {
+                above_view.setVisibility(View.GONE);
+                if (clickId == R.id.btn_manifest_add) {
+                    add_manifest_view.setVisibility(View.GONE);
+                } else {
+                    add_todo_view.closePop();
+                    add_todo_view.setVisibility(View.GONE);
+                }
+                fab.show();
+            }
+        });
         //初始化RecyclerView
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         //如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
@@ -234,9 +232,9 @@ private int clickId;
 
     @Override
     public void onClick(View v) {
+        clickId = v.getId();
         switch (v.getId()) {
             case R.id.above_view:
-                add_todo_view.et_comment.requestFocus();
                 UiUtils.hideSoftKeyboard(this, add_todo_view.et_comment);
                 break;
             case R.id.btn_today:
@@ -244,10 +242,9 @@ private int clickId;
                 switchFragment(0);
                 break;
             case R.id.btn_manifest_add:
-                new XPopup.Builder(this)
-                        .popupAnimation(PopupAnimation.ScaleAlphaFromCenter)
-                        .asConfirm("修改待办", "你可以为弹窗选择任意一种动画，但这并不必要，因为我已经默认给每种弹窗设定了最佳动画！对于你自定义的弹窗，可以随心选择心仪的动画方案。", null)
-                        .show();
+                fab.hide();
+                add_manifest_view.et_comment.requestFocus();
+                UiUtils.showSoftKeyboard(MainActivity.this, add_manifest_view.et_comment);
                 break;
             case R.id.btn_settings:
 

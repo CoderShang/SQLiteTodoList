@@ -54,7 +54,7 @@ public class AddManifestView extends LinearLayout implements View.OnClickListene
     }
 
     private void init(Context context) {
-        LayoutInflater.from(context).inflate(R.layout.add_bottom_popup, this, true);
+        LayoutInflater.from(context).inflate(R.layout.add_manifest_popup, this, true);
         ll_add = findViewById(R.id.ll_add);
         et_comment = findViewById(R.id.et_comment);
         btn_add = findViewById(R.id.btn_add);
