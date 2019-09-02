@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         title_bar = findViewById(R.id.title_bar);
         above_view = findViewById(R.id.above_view);
         add_todo_view = findViewById(R.id.add_todo_view);
-        add_manifest_view = findViewById(R.id.add_manifest_view);
         drawer_layout = findViewById(R.id.drawer_layout);
         root_layout = findViewById(R.id.root_layout);
         btn_github = findViewById(R.id.btn_github);

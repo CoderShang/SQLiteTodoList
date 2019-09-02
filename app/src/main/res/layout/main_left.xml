@@ -46,11 +46,4 @@
         android:overScrollMode="never"
         tools:listitem="@layout/item_left_fun" />
 
-    <com.shang.todolist.ui.widget.AddManifestView
-        android:id="@+id/add_manifest_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:visibility="gone" />
-
 </FrameLayout>
