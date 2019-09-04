@@ -59,10 +59,17 @@ public final class TodoListContract {
     }
 
     public interface ManifestColumns extends BaseColumns {
+        String queryPath = "/manifest";
+        String addPath = "/manifest/add";
+        String deletePath = "/manifest/delete";
+        String updatePath = "/manifest/update";
         /**
          * The content:// style URL for this table.
          */
-        Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/manifest");
+        Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + queryPath);
+        Uri CONTENT_URI_ADD = Uri.parse("content://" + AUTHORITY + addPath);
+        Uri CONTENT_URI_DELETE = Uri.parse("content://" + AUTHORITY + deletePath);
+        Uri CONTENT_URI_UPDATE = Uri.parse("content://" + AUTHORITY + updatePath);
 
         String _ID = "_ID";
         /**

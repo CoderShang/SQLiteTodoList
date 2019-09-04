@@ -30,7 +30,11 @@ public class MainAdapter extends BaseItemDraggableAdapter<ManifestBean, BaseView
         } else {
             tv_num.setText("");
         }
-
-
+        if (item.selected) {
+            helper.setBackgroundRes(R.id.fl_item, R.color.colorAccent);
+        } else {
+            helper.setBackgroundRes(R.id.fl_item, android.R.color.transparent);
+        }
+        helper.addOnClickListener(R.id.fl_item);
     }
 }

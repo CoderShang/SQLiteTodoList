@@ -38,18 +38,4 @@
         app:backgroundTint="@color/colorAccent"
         app:rippleColor="@color/colorAccent" />
 
-    <View
-        android:id="@+id/above_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/transparent70"
-        android:visibility="gone" />
-
-    <com.shang.todolist.ui.widget.AddTodoView
-        android:id="@+id/add_todo_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:visibility="gone" />
-
 </FrameLayout>

@@ -1,11 +1,15 @@
 package com.shang.todolist.ui.widget;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -14,53 +18,64 @@ import android.widget.LinearLayout;
 
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
+import com.lxj.xpopup.core.BottomPopupView;
 import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnSelectListener;
+import com.lxj.xpopup.interfaces.SimpleCallback;
+import com.lxj.xpopup.interfaces.XPopupCallback;
+import com.lxj.xpopup.util.XPopupUtils;
+import com.lxj.xpopup.widget.VerticalRecyclerView;
+import com.shang.todolist.App;
 import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
+import com.shang.todolist.db.DbThreadPool;
 import com.shang.todolist.db.TodoBean;
+import com.shang.todolist.db.TodoListContract;
+import com.shang.todolist.ui.MainActivity;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
 /**
- * 添加待办的底部View
+ * Description: 添加待办事项的底部弹窗
  */
-public class AddTodoView extends LinearLayout implements View.OnClickListener {
+public class AddTodoPopup extends BottomPopupView implements View.OnClickListener {
     public EditText et_comment;
     private ImageView btn_mark;
     private ImageView btn_alarm;
     private ImageView btn_add;
     private LinearLayout ll_add;
     private int markFlag = 3;//默认 3  普通任务 灰色
+    private int sort = 0;
+    private long manifest = 0;
     private long alarmTime;//闹钟
     private TodoBean mBean;
-    private OnAddListener listener;
     private BasePopupView popMark;
 
-    public AddTodoView(Context context) {
+    public AddTodoPopup(@NonNull Context context, int sort, long manifest) {
         super(context);
-        init(context);
+        this.sort = sort;
+        this.manifest = manifest;
     }
 
-    public AddTodoView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
+    public AddTodoPopup(@NonNull Context context, TodoBean bean) {
+        super(context);
+        this.mBean = bean;
     }
 
-    public AddTodoView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init(context);
+    @Override
+    protected int getImplLayoutId() {
+        return R.layout.add_bottom_popup;
     }
 
-    public void clearUI() {
-        et_comment.setText("");
-        markFlag = 3;
-        btn_mark.setImageResource(R.drawable.ic_urgent);
+    @Override
+    protected void onCreate() {
+        super.onCreate();
+        initView();
     }
 
-    private void init(Context context) {
-        LayoutInflater.from(context).inflate(R.layout.add_bottom_popup, this, true);
+    private void initView() {
         ll_add = findViewById(R.id.ll_add);
         et_comment = findViewById(R.id.et_comment);
         btn_mark = findViewById(R.id.btn_mark);
@@ -95,26 +110,13 @@ public class AddTodoView extends LinearLayout implements View.OnClickListener {
         });
     }
 
-    public interface OnAddListener {
-        void onCreated(TodoBean bean);
-    }
-
-    public void setListener(OnAddListener listener) {
-        this.listener = listener;
-    }
-
-    public void closePop() {
-        if (popMark != null) {
-            popMark.dismiss();
-        }
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_mark:
                 popMark = new XPopup.Builder(getContext())
                         .hasShadowBg(false)
+                        .isRequestFocus(false)
                         .offsetY(UiUtils.dip2px(-1))
                         .popupPosition(PopupPosition.Top) //手动指定弹窗的位置
                         .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
@@ -140,7 +142,6 @@ public class AddTodoView extends LinearLayout implements View.OnClickListener {
                                                 break;
                                         }
                                         btn_mark.setImageResource(markId);
-                                        et_comment.requestFocus();
                                     }
 
                                 });
@@ -151,14 +152,32 @@ public class AddTodoView extends LinearLayout implements View.OnClickListener {
                 btn_alarm.setImageResource(R.drawable.ic_alarm_flag);
                 break;
             case R.id.btn_add:
-                if (listener != null) {
-                    mBean = new TodoBean(Calendar.getInstance().getTimeInMillis(),
-                            0, et_comment.getText().toString(), "", alarmTime, false, markFlag, 0);
-                    listener.onCreated(mBean);
-                }
+                mBean = new TodoBean(Calendar.getInstance().getTimeInMillis(),
+                        sort + 1, et_comment.getText().toString(), "", 0, false, markFlag, manifest);
+                insertValue(mBean);
+                dismiss();
                 break;
             default:
                 break;
         }
+    }
+
+    private void insertValue(final TodoBean addBean) {
+        Runnable updateTask = new Runnable() {
+            @Override
+            public void run() {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(TodoListContract.TodoListColumns._ID, addBean.id);
+                contentValues.put(TodoListContract.TodoListColumns.SORT_ID, addBean.sortId);
+                contentValues.put(TodoListContract.TodoListColumns.TITLE, addBean.title);
+                contentValues.put(TodoListContract.TodoListColumns.DESCRIPTION, addBean.description);
+                contentValues.put(TodoListContract.TodoListColumns.ALARM, addBean.alarm);
+                contentValues.put(TodoListContract.TodoListColumns.STATUS, addBean.status ? 1 : 0);
+                contentValues.put(TodoListContract.TodoListColumns.MARK, addBean.mark);
+                contentValues.put(TodoListContract.TodoListColumns.MANIFEST, addBean.manifest);
+                App.get().getContentResolver().insert(TodoListContract.TodoListColumns.CONTENT_URI_ADD, contentValues);
+            }
+        };
+        DbThreadPool.getThreadPool().exeute(updateTask);
     }
 }

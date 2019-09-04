@@ -13,14 +13,14 @@ public class ManifestBean {
     public String name = "";
     //清单中待办的数量
     public int num;
+    public boolean selected;
 
     public ManifestBean() {
     }
 
-    public ManifestBean(long id, int sortId, String name, int num) {
+    public ManifestBean(long id, int sortId, String name) {
         this.id = id;
         this.sortId = sortId;
         this.name = name;
-        this.num = num;
     }
 }

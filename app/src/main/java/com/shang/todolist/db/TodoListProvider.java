@@ -23,6 +23,9 @@ public class TodoListProvider extends ContentProvider {
     private final static int TODOLIST_DELETE = 103;
     private final static int TODOLIST_UPDATE = 104;
     private final static int MANIFEST = 201;
+    private final static int MANIFEST_ADD = 202;
+    private final static int MANIFEST_DELETE = 203;
+    private final static int MANIFEST_UPDATE = 204;
     private final static int ALARM = 301;
 
     private static final UriMatcher sUriMatcher;
@@ -34,6 +37,9 @@ public class TodoListProvider extends ContentProvider {
         sUriMatcher.addURI(TodoListContract.AUTHORITY, "todolist/delete", TODOLIST_DELETE);
         sUriMatcher.addURI(TodoListContract.AUTHORITY, "todolist/update", TODOLIST_UPDATE);
         sUriMatcher.addURI(TodoListContract.AUTHORITY, "manifest", MANIFEST);
+        sUriMatcher.addURI(TodoListContract.AUTHORITY, "manifest/add", MANIFEST_ADD);
+        sUriMatcher.addURI(TodoListContract.AUTHORITY, "manifest/delete", MANIFEST_DELETE);
+        sUriMatcher.addURI(TodoListContract.AUTHORITY, "manifest/update", MANIFEST_UPDATE);
         sUriMatcher.addURI(TodoListContract.AUTHORITY, "alarm", ALARM);
     }
 
@@ -88,6 +94,12 @@ public class TodoListProvider extends ContentProvider {
                 return "vnd.android.cursor.dir/todolist/update";
             case MANIFEST:
                 return "vnd.android.cursor.dir/manifest";
+            case MANIFEST_ADD:
+                return "vnd.android.cursor.dir/manifest/add";
+            case MANIFEST_DELETE:
+                return "vnd.android.cursor.dir/manifest/delete";
+            case MANIFEST_UPDATE:
+                return "vnd.android.cursor.dir/manifest/update";
             default:
                 throw new IllegalArgumentException("Unknown URL");
         }
@@ -104,7 +116,7 @@ public class TodoListProvider extends ContentProvider {
                 rowId = db.insert(DbOpenHelper.TABLE_TODOLIST, TodoListContract.TodoListColumns._ID, values);
                 uriResult = ContentUris.withAppendedId(TodoListContract.TodoListColumns.CONTENT_URI_ADD, rowId);
                 break;
-            case MANIFEST:
+            case MANIFEST_ADD:
                 rowId = db.insert(DbOpenHelper.TABLE_MANIFEST, TodoListContract.ManifestColumns._ID, values);
                 uriResult = ContentUris.withAppendedId(TodoListContract.ManifestColumns.CONTENT_URI, rowId);
                 break;
@@ -123,7 +135,7 @@ public class TodoListProvider extends ContentProvider {
             case TODOLIST_DELETE:
                 count = db.delete(DbOpenHelper.TABLE_TODOLIST, selection, selectionArgs);
                 break;
-            case MANIFEST:
+            case MANIFEST_DELETE:
                 count = db.delete(DbOpenHelper.TABLE_MANIFEST, selection, selectionArgs);
                 break;
             default:
@@ -141,7 +153,7 @@ public class TodoListProvider extends ContentProvider {
             case TODOLIST_UPDATE:
                 count = db.update(DbOpenHelper.TABLE_TODOLIST, values, selection, selectionArgs);
                 break;
-            case MANIFEST:
+            case MANIFEST_UPDATE:
                 count = db.update(DbOpenHelper.TABLE_MANIFEST, values, selection, selectionArgs);
                 break;
             default: {

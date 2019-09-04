@@ -55,7 +55,6 @@ public class TodoFragment extends BaseFragment {
     private TodoListAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
     private ItemDragAndSwipeCallback mItemDragAndSwipeCallback;
-    private int mStatus = -1;//查询条件，按照状态查找
     private int mEditPos = -1;//被点击编辑的Item位置
     private long manifestId;//外面传递过来的清单ID，做查询条件
     private List<TodoBean> mTodoList = new ArrayList<>();
@@ -283,12 +282,7 @@ public class TodoFragment extends BaseFragment {
             queryTask = new Runnable() {
                 @Override
                 public void run() {
-                    Cursor cursor;
-                    if (mStatus == -1) {
-                        cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, null, null, TodoListContract.TodoListColumns.SORT_ID);
-                    } else {
-                        cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns.STATUS + "=?", new String[]{mStatus + ""}, TodoListContract.TodoListColumns.SORT_ID);
-                    }
+                    Cursor cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, null, null, TodoListContract.TodoListColumns.SORT_ID);
                     mTodoList.clear();
                     while (cursor.moveToNext()) {
                         TodoBean bean = new TodoBean();

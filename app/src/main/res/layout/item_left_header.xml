@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fl_header"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="48dp"
+    android:background="@color/colorAccent"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <Button
+        android:id="@+id/btn_today_img"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="16dp"
+        android:background="@drawable/ic_today"
+        android:gravity="center"
+        android:paddingTop="1dp"
+        android:textColor="@color/white_color"
+        android:textSize="8dp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/btn_today"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:drawableLeft="@drawable/ic_today"
-        android:drawablePadding="10dp"
-        android:foreground="?android:attr/selectableItemBackground"
+        android:layout_marginLeft="34dp"
         android:gravity="center_vertical"
         android:paddingLeft="16dp"
         android:paddingRight="50dp"
