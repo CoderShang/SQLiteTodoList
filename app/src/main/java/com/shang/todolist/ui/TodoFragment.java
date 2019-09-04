@@ -157,28 +157,6 @@ public class TodoFragment extends BaseFragment {
     }
 
     private void initListener() {
-        // 注册数据改变的监听器
-        mObserver = new ContentObserver(mHandler) {
-            @Override
-            public void onChange(boolean selfChange, Uri uri) {
-//                if (mTodoList.size() != 0) {
-//                    mRecyclerView.smoothScrollToPosition(0);
-//                }
-                if (uri == null) {
-                    return;
-                }
-                if (uri.getPath().contains(TodoListContract.TodoListColumns.addPath)) {
-                    Log.d("Insert:新增了一条数据！", uri.getPath());
-                } else if (uri.getPath().contains(TodoListContract.TodoListColumns.deletePath)) {
-                    Log.d("Delete:有删除被数据啦！", uri.getPath());
-                } else if (uri.getPath().contains(TodoListContract.TodoListColumns.updatePath)) {
-                    Log.d("Update：有数据被修改啦！", uri.getPath());
-                }
-            }
-        };
-        App.get().getApplicationContext().getContentResolver()
-                .registerContentObserver(TodoListContract.TodoListColumns.CONTENT_URI,
-                        true, mObserver);
         //排序的监听
         OnItemDragListener listener = new OnItemDragListener() {
             @Override
@@ -282,7 +260,7 @@ public class TodoFragment extends BaseFragment {
             queryTask = new Runnable() {
                 @Override
                 public void run() {
-                    Cursor cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, null, null, TodoListContract.TodoListColumns.SORT_ID);
+                    Cursor cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns.MANIFEST+"=?", new String[]{String.valueOf(manifestId)}, TodoListContract.TodoListColumns.SORT_ID);
                     mTodoList.clear();
                     while (cursor.moveToNext()) {
                         TodoBean bean = new TodoBean();
@@ -428,7 +406,6 @@ public class TodoFragment extends BaseFragment {
         if (queryTask != null) {
             DbThreadPool.getThreadPool().cancel(queryTask);
         }
-        App.get().getApplicationContext().getContentResolver().unregisterContentObserver(mObserver);
         super.onDestroyView();
     }
 }

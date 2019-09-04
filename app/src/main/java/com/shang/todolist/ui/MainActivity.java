@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -51,10 +52,9 @@ import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    public static final int FIRST = 0;
-    public static final int SECOND = 1;
-    public static final int THIRD = 2;
+    public static final int FIRST = -1;
     public static final int WHAT_QUERY = 1;
+    public static final int WHAT_QUERY_TODAY = 2;
     private RecyclerView mRecyclerView;
     private MainAdapter mAdapter;
     private TitleBar title_bar;
@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btn_today_img;
     private TextView btn_today;
     private TextView tv_today_num;
-    private int lastPos = -1;
     private List<ManifestBean> mManifestList = new ArrayList<>();
     private Runnable queryTask;
     private ItemTouchHelper mItemTouchHelper;
@@ -84,7 +83,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case WHAT_QUERY:
                     //接收查询数据库返回的结果，更新UI
                     mAdapter.setNewData(mManifestList);
-
+                    break;
+                case WHAT_QUERY_TODAY:
+                    int num = (int) msg.obj;
+                    if (num == 0) {
+                        tv_today_num.setText("");
+                    } else {
+                        tv_today_num.setText(String.valueOf(num));
+                    }
                     break;
                 default:
             }
@@ -116,11 +122,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAdapter.bindToRecyclerView(mRecyclerView);
         initListener();
         //初始化默认的Fragment
-        switchFragment(0);
+        switchFragment(FIRST);
         queryValue();
     }
 
     private void initListener() {
+        btn_github.setOnClickListener(this);
+        btn_settings.setOnClickListener(this);
         title_bar.setListener(new TitleBar.TitleBarListener() {
             @Override
             public void barLeft() {
@@ -129,11 +137,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void barSecond() {
+                new XPopup.Builder(MainActivity.this)
+                        .autoOpenSoftInput(true)
+                        .setPopupCallback(new XPopupCallback() {
+                            @Override
+                            public void onCreated() {
 
+                            }
+
+                            @Override
+                            public void onShow() {
+
+                            }
+
+                            @Override
+                            public void onDismiss() {
+                                fab.show();
+                            }
+
+                            @Override
+                            public boolean onBackPressed() {
+                                return false;
+                            }
+                        })
+                        .asCustom(new AddManifestPopup(MainActivity.this, mManifestList.get(mClickPos))).show();
             }
 
             @Override
             public void barRight() {
+                Snackbar.make(root_layout, "No development", Snackbar.LENGTH_SHORT).show();
             }
         });
         fab.setOnClickListener(new View.OnClickListener() {
@@ -173,25 +205,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .asCustom(pop).show();
             }
         });
-        btn_github.setOnClickListener(this);
-        // 注册数据改变的监听器
+
+        // 注册to-do数据改变的监听器
         mObserver = new ContentObserver(mHandler) {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
                 if (uri == null) {
                     return;
                 }
-                if (uri.getPath().contains(TodoListContract.ManifestColumns.addPath)) {
+                if (uri.getPath().contains(TodoListContract.TodoListColumns.addPath)) {
+                    queryValue();
                     Log.d("Insert:新增了一条数据！", uri.getPath());
-                } else if (uri.getPath().contains(TodoListContract.ManifestColumns.deletePath)) {
-                    Log.d("Delete:有删除被数据啦！", uri.getPath());
-                } else if (uri.getPath().contains(TodoListContract.ManifestColumns.updatePath)) {
-                    Log.d("Update：有数据被修改啦！", uri.getPath());
+                } else if (uri.getPath().contains(TodoListContract.TodoListColumns.deletePath)) {
+                    queryValue();
+                    Log.d("Delete:有数据被删除啦！", uri.getPath());
                 }
             }
         };
         App.get().getApplicationContext().getContentResolver()
-                .registerContentObserver(TodoListContract.ManifestColumns.CONTENT_URI,
+                .registerContentObserver(TodoListContract.TodoListColumns.CONTENT_URI,
                         true, mObserver);
         //排序的监听
         OnItemDragListener listener = new OnItemDragListener() {
@@ -217,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else if (pos < fromPos) {
                     updateSort(pos, fromPos);
                 }
+                mClickPos = pos;
             }
         };
         //侧滑删除的监听
@@ -239,6 +272,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onItemSwiped(RecyclerView.ViewHolder viewHolder, int pos) {
+                if (mClickPos == pos) {
+                    mClickPos = -1;
+                    title_bar.setImgSecond(0);
+                    title_bar.setTitle(btn_today.getText().toString());
+                    fl_header.setBackgroundResource(R.color.colorAccent);
+                    switchFragment(FIRST);
+                }
                 deleteValue(deleteId);
                 if (pos < mManifestList.size()) {
                     updateSort(pos, mManifestList.size() - 1);
@@ -266,18 +306,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                if (mClickPos == position) {
+                    return;
+                }
+                title_bar.setImgSecond(R.drawable.ic_edit);
                 title_bar.setTitle(mManifestList.get(position).name);
                 mManifestList.get(position).selected = true;
                 view.setBackgroundResource(R.color.colorAccent);
                 if (mClickPos != -1) {
                     mManifestList.get(mClickPos).selected = false;
-                    mAdapter.notifyItemChanged(mClickPos);
+                    mAdapter.setData(mClickPos, mManifestList.get(mClickPos));
                 } else {
                     fl_header.setBackgroundResource(android.R.color.transparent);
                 }
                 mClickPos = position;
                 // 刷新Fragment
-                switchFragment(1);
+                switchFragment(mClickPos);
             }
         });
     }
@@ -292,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Calendar mCalendar = Calendar.getInstance();
         int mDay = mCalendar.get(Calendar.DAY_OF_MONTH);
         btn_today_img.setText(mDay + "");
-        btn_today.setOnClickListener(this);
+        fl_header.setOnClickListener(this);
         return item_left_header;
     }
 
@@ -305,20 +349,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void switchFragment(int position) {
         drawer_layout.closeDrawer(Gravity.LEFT);
-        if (position == lastPos) {
-            return;
-        }
-        lastPos = position;
-        Fragment fragment = null;
-        switch (position) {
-            case FIRST:
-                fragment = TodoFragment.newInstance(0);
-                break;
-            case SECOND:
-                fragment = TodoFragment.newInstance(mManifestList.get(mClickPos).id);
-                break;
-            default:
-                break;
+        Fragment fragment;
+        if (position == FIRST) {
+            fragment = TodoFragment.newInstance(0);
+        } else {
+            fragment = TodoFragment.newInstance(mManifestList.get(position).id);
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, fragment).commitAllowingStateLoss();
     }
@@ -349,7 +384,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             bean.num = cursor.getInt(cursor.getColumnIndex(TodoListContract.ManifestColumns.NUM));
                             mManifestList.add(bean);
                         }
+                        if (mClickPos != -1 && mClickPos < mManifestList.size()) {
+                            mManifestList.get(mClickPos).selected = true;
+                        }
                         mHandler.sendEmptyMessage(WHAT_QUERY);
+                        Cursor cursorToday = db.rawQuery("SELECT COUNT(1) FROM TODOLIST T  WHERE T.MANIFEST=0", null);
+                        int num = 0;
+                        while (cursorToday.moveToNext()) {
+                            num = cursorToday.getInt(0);
+                        }
+                        Message msg = Message.obtain();
+                        msg.obj = num;
+                        msg.what = WHAT_QUERY_TODAY;
+                        mHandler.sendMessage(msg);
                     }
                 }
             };
@@ -429,17 +476,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .asCustom(new AddManifestPopup(MainActivity.this, mManifestList.size())).show();
                 break;
             case R.id.fl_header:
+                if (mClickPos == -1) {
+                    return;
+                }
+                title_bar.setImgSecond(0);
                 title_bar.setTitle(btn_today.getText().toString());
                 fl_header.setBackgroundResource(R.color.colorAccent);
-                switchFragment(0);
+                switchFragment(FIRST);
                 if (mClickPos != -1) {
                     mManifestList.get(mClickPos).selected = false;
-                    mAdapter.notifyItemChanged(mClickPos);
+                    mAdapter.setData(mClickPos, mManifestList.get(mClickPos));
                 }
                 mClickPos = -1;
                 break;
             case R.id.btn_settings:
-
+                Snackbar.make(root_layout, "Nothing to set up.", Snackbar.LENGTH_SHORT).show();
                 break;
             case R.id.btn_github:
                 Intent intent = new Intent();
@@ -451,5 +502,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        App.get().getApplicationContext().getContentResolver().unregisterContentObserver(mObserver);
+        super.onDestroy();
     }
 }
