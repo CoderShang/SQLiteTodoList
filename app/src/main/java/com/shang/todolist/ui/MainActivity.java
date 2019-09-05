@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int mClickPos = -1;//被点击编辑的Item位置
     private int fromPos;//记录排序from 和 to 的位置
     private long deleteId;//记录准备删除的ID主键
+    private int todaySum;//总数
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -93,11 +94,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mAdapter.setNewData(mManifestList);
                     break;
                 case WHAT_QUERY_TODAY:
-                    int num = (int) msg.obj;
-                    if (num == 0) {
+                    todaySum = (int) msg.obj;
+                    if (todaySum == 0) {
                         tv_today_num.setText("");
                     } else {
-                        tv_today_num.setText(String.valueOf(num));
+                        tv_today_num.setText(String.valueOf(todaySum));
                     }
                     break;
                 default:
@@ -182,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View view) {
                 fab.hide();
-                int sort = Integer.valueOf(tv_today_num.getText().toString());
+                int sort = todaySum;
                 long manifest = 0;
                 if (mClickPos != -1) {
                     sort = mManifestList.get(mClickPos).num;
