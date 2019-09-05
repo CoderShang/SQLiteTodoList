@@ -2,15 +2,11 @@ package com.shang.todolist.ui.widget;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -21,19 +17,18 @@ import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.core.BottomPopupView;
 import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnSelectListener;
-import com.lxj.xpopup.interfaces.SimpleCallback;
-import com.lxj.xpopup.interfaces.XPopupCallback;
-import com.lxj.xpopup.util.XPopupUtils;
-import com.lxj.xpopup.widget.VerticalRecyclerView;
 import com.shang.todolist.App;
 import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
 import com.shang.todolist.db.DbThreadPool;
 import com.shang.todolist.db.TodoBean;
 import com.shang.todolist.db.TodoListContract;
-import com.shang.todolist.ui.MainActivity;
+import com.shang.todolist.event.DeleteTodoEvent;
+import com.shang.todolist.event.EditTodoEvent;
+import com.shang.todolist.event.InsertTodoEvent;
 
-import java.util.ArrayList;
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -41,13 +36,14 @@ import java.util.Date;
  * Description: 添加待办事项的底部弹窗
  */
 public class AddTodoPopup extends BottomPopupView implements View.OnClickListener {
-    public EditText et_comment;
+    public EditText et_comment, et_desc;
     private ImageView btn_mark;
     private ImageView btn_alarm;
-    private ImageView btn_add;
+    private ImageView btn_add, btn_delete;
     private LinearLayout ll_add;
     private int markFlag = 3;//默认 3  普通任务 灰色
     private int sort = 0;
+    private int pos = -1;
     private long manifest = 0;
     private long alarmTime;//闹钟
     private TodoBean mBean;
@@ -59,9 +55,10 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
         this.manifest = manifest;
     }
 
-    public AddTodoPopup(@NonNull Context context, TodoBean bean) {
+    public AddTodoPopup(@NonNull Context context, TodoBean bean, int pos) {
         super(context);
         this.mBean = bean;
+        this.pos = pos;
     }
 
     @Override
@@ -76,15 +73,19 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
     }
 
     private void initView() {
+        //TODO ⏰闹钟提醒UI布局
         ll_add = findViewById(R.id.ll_add);
         et_comment = findViewById(R.id.et_comment);
+        et_desc = findViewById(R.id.et_desc);
         btn_mark = findViewById(R.id.btn_mark);
         btn_alarm = findViewById(R.id.btn_alarm);
         btn_add = findViewById(R.id.btn_add);
+        btn_delete = findViewById(R.id.btn_delete);
         ll_add.setOnClickListener(this);
         btn_mark.setOnClickListener(this);
         btn_alarm.setOnClickListener(this);
         btn_add.setOnClickListener(this);
+        btn_delete.setOnClickListener(this);
         btn_add.setEnabled(false);
         et_comment.addTextChangedListener(new TextWatcher() {
             @Override
@@ -108,6 +109,13 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 }
             }
         });
+        if (mBean != null) {
+            btn_delete.setVisibility(VISIBLE);
+            et_comment.setText(mBean.title);
+            et_desc.setText(mBean.description);
+            btn_mark.setImageResource(switchMark(mBean.mark));
+            //TODO 渲染⏰闹钟提醒
+        }
     }
 
     @Override
@@ -125,23 +133,7 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                                 new OnSelectListener() {
                                     @Override
                                     public void onSelect(int position, String text) {
-                                        markFlag = position;
-                                        int markId;
-                                        switch (position) {
-                                            case 0:
-                                                markId = R.drawable.ic_urgent_1;
-                                                break;
-                                            case 1:
-                                                markId = R.drawable.ic_urgent_2;
-                                                break;
-                                            case 2:
-                                                markId = R.drawable.ic_urgent_3;
-                                                break;
-                                            default:
-                                                markId = R.drawable.ic_urgent;
-                                                break;
-                                        }
-                                        btn_mark.setImageResource(markId);
+                                        btn_mark.setImageResource(switchMark(position));
                                     }
 
                                 });
@@ -152,9 +144,22 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 btn_alarm.setImageResource(R.drawable.ic_alarm_flag);
                 break;
             case R.id.btn_add:
-                mBean = new TodoBean(Calendar.getInstance().getTimeInMillis(),
-                        sort + 1, et_comment.getText().toString(), "", 0, false, markFlag, manifest);
-                insertValue(mBean);
+                if (mBean == null) {
+                    //TODO 添加⏰闹钟提醒
+                    mBean = new TodoBean(Calendar.getInstance().getTimeInMillis(),
+                            sort + 1, et_comment.getText().toString(), et_desc.getText().toString(), 0, false, markFlag, manifest);
+                    insertValue(mBean);
+                } else {
+                    mBean.title = et_comment.getText().toString();
+                    mBean.description = et_desc.getText().toString();
+                    mBean.mark = markFlag;
+                    //TODO 保存⏰闹钟提醒
+                    updateValue(mBean);
+                }
+                dismiss();
+                break;
+            case R.id.btn_delete:
+                deleteValue(pos, mBean.id);
                 dismiss();
                 break;
             default:
@@ -162,7 +167,28 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
         }
     }
 
+    private int switchMark(int position) {
+        markFlag=position;
+        int markId;
+        switch (position) {
+            case 0:
+                markId = R.drawable.ic_urgent_1;
+                break;
+            case 1:
+                markId = R.drawable.ic_urgent_2;
+                break;
+            case 2:
+                markId = R.drawable.ic_urgent_3;
+                break;
+            default:
+                markId = R.drawable.ic_urgent;
+                break;
+        }
+        return markId;
+    }
+
     private void insertValue(final TodoBean addBean) {
+        //TODO 新增⏰闹钟表数据
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
@@ -179,5 +205,36 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
+        EventBus.getDefault().post(new InsertTodoEvent(addBean));
+    }
+
+    private void deleteValue(int pos, final long deleteId) {
+        //TODO 删除⏰闹钟表数据
+        Runnable deleteTask = new Runnable() {
+            @Override
+            public void run() {
+                App.get().getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI_DELETE, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(deleteId)});
+            }
+        };
+        DbThreadPool.getThreadPool().exeute(deleteTask);
+        EventBus.getDefault().post(new DeleteTodoEvent(pos));
+
+    }
+
+    private void updateValue(final TodoBean updateBean) {
+        //TODO 保存⏰闹钟提醒字段
+        Runnable updateTask = new Runnable() {
+            @Override
+            public void run() {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(TodoListContract.TodoListColumns.TITLE, updateBean.title);
+                contentValues.put(TodoListContract.TodoListColumns.DESCRIPTION, updateBean.description);
+                contentValues.put(TodoListContract.TodoListColumns.ALARM, updateBean.alarm);
+                contentValues.put(TodoListContract.TodoListColumns.MARK, updateBean.mark);
+                App.get().getContentResolver().update(TodoListContract.TodoListColumns.CONTENT_URI_UPDATE, contentValues, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(updateBean.id)});
+            }
+        };
+        DbThreadPool.getThreadPool().exeute(updateTask);
+        EventBus.getDefault().post(new EditTodoEvent(updateBean));
     }
 }

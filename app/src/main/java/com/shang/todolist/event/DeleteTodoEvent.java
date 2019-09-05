@@ -6,9 +6,6 @@ package com.shang.todolist.event;
 public class DeleteTodoEvent {
     public int pos;
 
-    public DeleteTodoEvent() {
-    }
-
     public DeleteTodoEvent(int pos) {
         this.pos = pos;
     }

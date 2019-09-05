@@ -18,7 +18,10 @@ import com.shang.todolist.R;
 import com.shang.todolist.db.DbThreadPool;
 import com.shang.todolist.db.ManifestBean;
 import com.shang.todolist.db.TodoListContract;
+import com.shang.todolist.event.DeleteManifestEvent;
+import com.shang.todolist.event.EditManifestEvent;
 import com.shang.todolist.event.EditTodoEvent;
+import com.shang.todolist.event.InsertManifestEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -33,10 +36,12 @@ public class AddManifestPopup extends BottomPopupView implements View.OnClickLis
     private LinearLayout ll_add;
     private ManifestBean mBean;
     private int maxNum;
+    private int pos = -1;
 
-    public AddManifestPopup(@NonNull Context context, ManifestBean bean) {
+    public AddManifestPopup(@NonNull Context context, ManifestBean bean, int pos) {
         super(context);
         this.mBean = bean;
+        this.pos = pos;
     }
 
     public AddManifestPopup(@NonNull Context context, int maxNum) {
@@ -108,7 +113,7 @@ public class AddManifestPopup extends BottomPopupView implements View.OnClickLis
                 }
                 break;
             case R.id.btn_delete:
-                deleteValue(mBean.id);
+                deleteValue(pos, mBean.id);
                 break;
             default:
                 break;
@@ -128,19 +133,22 @@ public class AddManifestPopup extends BottomPopupView implements View.OnClickLis
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
+        EventBus.getDefault().post(new InsertManifestEvent(addBean));
     }
 
     /**
      * 单条删除
      */
-    private void deleteValue(final long id) {
+    private void deleteValue(int pos, final long id) {
         Runnable deleteTask = new Runnable() {
             @Override
             public void run() {
                 App.get().getContentResolver().delete(TodoListContract.ManifestColumns.CONTENT_URI_DELETE, TodoListContract.ManifestColumns._ID + "=?", new String[]{String.valueOf(id)});
+                App.get().getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI_DELETE, TodoListContract.TodoListColumns.MANIFEST + "=?", new String[]{String.valueOf(id)});
             }
         };
         DbThreadPool.getThreadPool().exeute(deleteTask);
+        EventBus.getDefault().post(new DeleteManifestEvent(pos));
     }
 
     private void updateValue(final ManifestBean updateBean) {
@@ -153,6 +161,6 @@ public class AddManifestPopup extends BottomPopupView implements View.OnClickLis
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
-        EventBus.getDefault().post(new EditTodoEvent(updateBean.id));
+        EventBus.getDefault().post(new EditManifestEvent(updateBean));
     }
 }

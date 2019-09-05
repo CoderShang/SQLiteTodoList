@@ -5,7 +5,7 @@
     <string name="marke_as_important">标记为重要</string>
     <string name="title_cannot_be_empty">标题不可为空！</string>
     <string name="todo_title">待办标题...</string>
-    <string name="todo_description">待办事项描述...</string>
+    <string name="todo_description">详细描述...</string>
     <!--To-do title-->
     <string name="no_work_today">今天没有任务</string>
     <string name="have_a_nice_day">享受美好的一天吧</string>
@@ -13,13 +13,14 @@
     <string name="want">想记点什么？点击 + 按钮写下来</string>
     <!--<string name="want">What do you want to remember? Click on the + button to write it down.</string>-->
     <string name="add_to_remind">添加提醒</string>
-    <string name="settings">设置</string>
+    <string name="set_up">设置</string>
     <!--<string name="what">What are you going to do?</string>-->
     <string name="what_todo">准备做什么？</string>
     <string name="what_manifest">请输入清单名称</string>
     <string name="folder">文件夹</string>
     <string name="add_a_manifest">添加清单</string>
-    <string name="waste_basket">废纸篓</string>
+    <string name="clear_all">清空所有数据</string>
+    <string name="about">关于</string>
 
     <string name="week_monday">星期一</string>
     <string name="week_tuesday">星期二</string>

@@ -5,17 +5,14 @@ import android.content.ContentValues;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Canvas;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -25,11 +22,13 @@ import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.listener.OnItemDragListener;
 import com.chad.library.adapter.base.listener.OnItemSwipeListener;
 import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.enums.PopupAnimation;
+import com.lxj.xpopup.interfaces.XPopupCallback;
 import com.shang.todolist.App;
 import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
+import com.shang.todolist.event.ClearAllEvent;
 import com.shang.todolist.event.DeleteTodoEvent;
+import com.shang.todolist.event.InsertTodoEvent;
 import com.shang.todolist.ui.adapter.CustomAnimation;
 import com.shang.todolist.ui.adapter.ItemDragAndSwipeCallback;
 import com.shang.todolist.ui.adapter.SpaceItemDecoration;
@@ -38,6 +37,7 @@ import com.shang.todolist.db.DbThreadPool;
 import com.shang.todolist.db.TodoBean;
 import com.shang.todolist.db.TodoListContract;
 import com.shang.todolist.event.EditTodoEvent;
+import com.shang.todolist.ui.widget.AddTodoPopup;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -238,7 +238,30 @@ public class TodoFragment extends BaseFragment {
                 mEditPos = position;
                 switch (view.getId()) {
                     case R.id.card_view:
-                        EditActivity.startActivity(mContext, mTodoList.get(position).id, mEditPos);
+                        AddTodoPopup pop = new AddTodoPopup(mContext, mTodoList.get(mEditPos), mEditPos);
+                        new XPopup.Builder(mContext)
+                                .autoOpenSoftInput(true)
+                                .setPopupCallback(new XPopupCallback() {
+                                    @Override
+                                    public void onCreated() {
+
+                                    }
+
+                                    @Override
+                                    public void onShow() {
+
+                                    }
+
+                                    @Override
+                                    public void onDismiss() {
+                                    }
+
+                                    @Override
+                                    public boolean onBackPressed() {
+                                        return false;
+                                    }
+                                })
+                                .asCustom(pop).show();
                         break;
                     case R.id.cb_status:
                         //修改状态
@@ -260,7 +283,7 @@ public class TodoFragment extends BaseFragment {
             queryTask = new Runnable() {
                 @Override
                 public void run() {
-                    Cursor cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns.MANIFEST+"=?", new String[]{String.valueOf(manifestId)}, TodoListContract.TodoListColumns.SORT_ID);
+                    Cursor cursor = App.get().getContentResolver().query(TodoListContract.TodoListColumns.CONTENT_URI, null, TodoListContract.TodoListColumns.MANIFEST + "=?", new String[]{String.valueOf(manifestId)}, TodoListContract.TodoListColumns.SORT_ID);
                     mTodoList.clear();
                     while (cursor.moveToNext()) {
                         TodoBean bean = new TodoBean();
@@ -375,14 +398,32 @@ public class TodoFragment extends BaseFragment {
     }
 
     /**
-     * 更新Todo的事件，查询后更新单条
+     * 新增Todo的事件，直接更新列表
+     *
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(InsertTodoEvent event) {
+        if (event != null) {
+            if (mTodoList.size() == 0) {
+                queryValue();
+            } else {
+                mAdapter.addData(event.bean);
+            }
+        }
+    }
+
+    /**
+     * 更新Todo的事件，直接填充列表
      *
      * @param event
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(EditTodoEvent event) {
         if (event != null) {
-            queryById(event.id);
+            if (mEditPos != -1) {
+                mAdapter.setData(mEditPos, event.bean);
+            }
         }
     }
 
@@ -398,6 +439,17 @@ public class TodoFragment extends BaseFragment {
             if (event.pos < mTodoList.size()) {
                 updateSort(event.pos, mTodoList.size() - 1);
             }
+            if (mTodoList.size() == 0) {
+                queryValue();
+            }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(ClearAllEvent event) {
+        if (event != null) {
+            queryValue();
+            mEditPos = -1;
         }
     }
 

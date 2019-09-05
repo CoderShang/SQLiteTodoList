@@ -41,11 +41,19 @@ import com.shang.todolist.db.DbOpenHelper;
 import com.shang.todolist.db.DbThreadPool;
 import com.shang.todolist.db.ManifestBean;
 import com.shang.todolist.db.TodoListContract;
+import com.shang.todolist.event.ClearAllEvent;
+import com.shang.todolist.event.DeleteManifestEvent;
+import com.shang.todolist.event.EditManifestEvent;
+import com.shang.todolist.event.InsertManifestEvent;
 import com.shang.todolist.ui.adapter.ItemDragAndSwipeCallback;
 import com.shang.todolist.ui.adapter.MainAdapter;
 import com.shang.todolist.ui.widget.AddManifestPopup;
 import com.shang.todolist.ui.widget.TitleBar;
 import com.shang.todolist.ui.widget.AddTodoPopup;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -102,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        EventBus.getDefault().register(this);
         mRecyclerView = findViewById(R.id.rv_manifest);
         title_bar = findViewById(R.id.title_bar);
         drawer_layout = findViewById(R.id.drawer_layout);
@@ -160,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 return false;
                             }
                         })
-                        .asCustom(new AddManifestPopup(MainActivity.this, mManifestList.get(mClickPos))).show();
+                        .asCustom(new AddManifestPopup(MainActivity.this, mManifestList.get(mClickPos), mClickPos)).show();
             }
 
             @Override
@@ -290,8 +299,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onItemSwipeMoving(Canvas canvas, RecyclerView.ViewHolder viewHolder, float dX, float dY, boolean isCurrentlyActive) {
-//                canvas.drawColor(ContextCompat.getColor(mContext, R.color.colorAccent));
-//                canvas.drawText("Just some text", 0, 40, paint);
+
             }
         };
         mItemDragAndSwipeCallback = new ItemDragAndSwipeCallback(mAdapter);
@@ -434,16 +442,82 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * 单条删除
+     * 删除清单，并且删除下面关联的全部TO-DO
      */
     private void deleteValue(final long id) {
         Runnable deleteTask = new Runnable() {
             @Override
             public void run() {
                 App.get().getContentResolver().delete(TodoListContract.ManifestColumns.CONTENT_URI_DELETE, TodoListContract.ManifestColumns._ID + "=?", new String[]{String.valueOf(id)});
+                App.get().getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI_DELETE, TodoListContract.TodoListColumns.MANIFEST + "=?", new String[]{String.valueOf(id)});
             }
         };
         DbThreadPool.getThreadPool().exeute(deleteTask);
+    }
+
+    /**
+     * 新增Todo的事件，直接更新列表
+     *
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(InsertManifestEvent event) {
+        if (event != null) {
+            mAdapter.addData(event.bean);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(ClearAllEvent event) {
+        if (event != null) {
+            title_bar.setImgSecond(0);
+            title_bar.setTitle(btn_today.getText().toString());
+            fl_header.setBackgroundResource(R.color.colorAccent);
+            switchFragment(FIRST);
+            mManifestList.clear();
+            mAdapter.notifyDataSetChanged();
+            mClickPos = -1;
+        }
+    }
+
+    /**
+     * 更新Todo的事件，直接填充列表
+     *
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(EditManifestEvent event) {
+        if (event != null) {
+            if (mClickPos != -1) {
+                title_bar.setTitle(event.bean.name);
+                mAdapter.setData(mClickPos, event.bean);
+            }
+        }
+    }
+
+    /**
+     * 接收删除Todo的事件，先删，再改变排序
+     *
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(DeleteManifestEvent event) {
+        if (event != null) {
+            if (mClickPos == event.pos) {
+                mClickPos = -1;
+                title_bar.setImgSecond(0);
+                title_bar.setTitle(btn_today.getText().toString());
+                fl_header.setBackgroundResource(R.color.colorAccent);
+                switchFragment(FIRST);
+            }
+            mAdapter.remove(event.pos);
+            if (event.pos < mManifestList.size()) {
+                updateSort(event.pos, mManifestList.size() - 1);
+            }
+            if (mManifestList.size() == 0) {
+                queryValue();
+            }
+        }
     }
 
     @Override
@@ -490,7 +564,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mClickPos = -1;
                 break;
             case R.id.btn_settings:
-                Snackbar.make(root_layout, "Nothing to set up.", Snackbar.LENGTH_SHORT).show();
+                SettingsActivity.startActivity(this);
                 break;
             case R.id.btn_github:
                 Intent intent = new Intent();
@@ -507,6 +581,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         App.get().getApplicationContext().getContentResolver().unregisterContentObserver(mObserver);
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 }
