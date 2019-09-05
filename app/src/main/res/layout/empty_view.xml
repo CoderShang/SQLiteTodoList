@@ -4,7 +4,6 @@
     android:id="@+id/empty_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/page_bg"
     android:gravity="center"
     android:orientation="vertical"
     android:paddingBottom="100dp"
@@ -12,16 +11,17 @@
     tools:visibility="visible">
 
     <ImageView
-        android:layout_width="204dp"
-        android:layout_height="172dp"
-        android:src="@drawable/empty_manifest" />
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/app_logo"
+        android:tint="@color/white_color" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="@string/no_task_just_relax"
-        android:textColor="@color/black_color"
+        android:textColor="@color/white_color"
         android:textSize="16sp" />
 
     <TextView

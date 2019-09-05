@@ -19,4 +19,12 @@
     <color name="desc_color">#A8FFFFFF</color>
     <color name="gray_eee">#eeeeee</color>
     <color name="transparent70">#4D000000</color>
+
+    <color name="title_transparent_black">#22000000</color>
+    <color name="light_black">#141414</color>
+    <color name="line_and_outline_grey">#d9d9d9</color>
+    <color name="white">#ffffff</color>
+    <color name="black_33">#333333</color>
+    <color name="half_transparent_black">#BB000000</color>
+
 </resources>

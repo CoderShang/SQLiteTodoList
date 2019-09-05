@@ -174,14 +174,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void barRight() {
-                Snackbar.make(root_layout, "No development", Snackbar.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, AlarmActivity.class);
+                startActivity(intent);
             }
         });
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 fab.hide();
-                int sort = 0;
+                int sort = Integer.valueOf(tv_today_num.getText().toString());
                 long manifest = 0;
                 if (mClickPos != -1) {
                     sort = mManifestList.get(mClickPos).num;
@@ -473,6 +474,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             title_bar.setImgSecond(0);
             title_bar.setTitle(btn_today.getText().toString());
             fl_header.setBackgroundResource(R.color.colorAccent);
+            tv_today_num.setText("");
             switchFragment(FIRST);
             mManifestList.clear();
             mAdapter.notifyDataSetChanged();

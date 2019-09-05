@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".App"
@@ -23,11 +24,18 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.SettingsActivity" />
+        <activity android:name=".ui.ClockAlarmActivity" />
+        <activity android:name=".ui.AlarmActivity" />
 
         <provider
             android:name=".db.TodoListProvider"
             android:authorities="com.shang.todolist"
             android:exported="false" />
+        <receiver android:name=".alarm.LoongggAlarmReceiver">
+            <intent-filter>
+                <action android:name="com.loonggg.alarm.clock" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

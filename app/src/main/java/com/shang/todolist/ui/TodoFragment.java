@@ -52,6 +52,7 @@ public class TodoFragment extends BaseFragment {
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView mRecyclerView;
     private LinearLayout emptyView;
+    private LinearLayout emptyToday;
     private TodoListAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
     private ItemDragAndSwipeCallback mItemDragAndSwipeCallback;
@@ -89,10 +90,18 @@ public class TodoFragment extends BaseFragment {
                     //接收查询数据库返回的结果，更新UI
                     swipeRefresh.setRefreshing(false);
                     mAdapter.setNewData(mTodoList);
-                    if (mTodoList.size() == 0) {
-                        emptyView.setVisibility(View.VISIBLE);
+                    if (manifestId == 0) {
+                        if (mTodoList.size() == 0) {
+                            emptyToday.setVisibility(View.VISIBLE);
+                        } else {
+                            emptyToday.setVisibility(View.GONE);
+                        }
                     } else {
-                        emptyView.setVisibility(View.GONE);
+                        if (mTodoList.size() == 0) {
+                            emptyView.setVisibility(View.VISIBLE);
+                        } else {
+                            emptyView.setVisibility(View.GONE);
+                        }
                     }
                     break;
                 case WHAT_QUERY_BYID:
@@ -118,6 +127,7 @@ public class TodoFragment extends BaseFragment {
     @Override
     protected void initView() {
         emptyView = find(R.id.empty_view);
+        emptyToday = find(R.id.empty_today);
         swipeRefresh = find(R.id.swipe_refresh);
         //初始化下拉刷新布局
         swipeRefresh.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.colorPrimary));
@@ -139,11 +149,11 @@ public class TodoFragment extends BaseFragment {
     @Override
     protected void initData() {
         mAdapter = new TodoListAdapter(mTodoList);
-        View emptyView = new View(mContext);
+        View footer = new View(mContext);
         ViewGroup.LayoutParams llp = new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, UiUtils.dip2px(100));
-        emptyView.setLayoutParams(llp);
-        mAdapter.setFooterView(emptyView);
+        footer.setLayoutParams(llp);
+        mAdapter.setFooterView(footer);
         mAdapter.bindToRecyclerView(mRecyclerView);
         mAdapter.openLoadAnimation(new CustomAnimation());
         //设置监听
@@ -278,7 +288,6 @@ public class TodoFragment extends BaseFragment {
      * 查询数据库，更新列表
      */
     private void queryValue() {
-        swipeRefresh.setRefreshing(true);
         if (queryTask == null) {
             queryTask = new Runnable() {
                 @Override
@@ -300,12 +309,7 @@ public class TodoFragment extends BaseFragment {
                 }
             };
         }
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                DbThreadPool.getThreadPool().exeute(queryTask);
-            }
-        }, 500);
+        DbThreadPool.getThreadPool().exeute(queryTask);
     }
 
     /**

@@ -137,7 +137,6 @@ public class TodoListProvider extends ContentProvider {
                 break;
             case MANIFEST_DELETE:
                 count = db.delete(DbOpenHelper.TABLE_MANIFEST, selection, selectionArgs);
-                DbOpenHelper.get().clearTable();
                 break;
             default:
                 throw new IllegalArgumentException("Cannot delete from URL: " + uri);

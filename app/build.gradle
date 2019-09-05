@@ -31,4 +31,5 @@ dependencies {
 //    implementation 'com.ashokvarma.android:bottom-navigation-bar:2.1.0'
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'com.lxj:xpopup:1.8.8'
+    implementation 'com.bigkoo:pickerview:2.0.8'
 }

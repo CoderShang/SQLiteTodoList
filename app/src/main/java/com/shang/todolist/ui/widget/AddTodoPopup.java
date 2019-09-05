@@ -147,7 +147,7 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 if (mBean == null) {
                     //TODO 添加⏰闹钟提醒
                     mBean = new TodoBean(Calendar.getInstance().getTimeInMillis(),
-                            sort + 1, et_comment.getText().toString(), et_desc.getText().toString(), 0, false, markFlag, manifest);
+                            sort, et_comment.getText().toString(), et_desc.getText().toString(), 0, false, markFlag, manifest);
                     insertValue(mBean);
                 } else {
                     mBean.title = et_comment.getText().toString();
@@ -168,7 +168,7 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
     }
 
     private int switchMark(int position) {
-        markFlag=position;
+        markFlag = position;
         int markId;
         switch (position) {
             case 0:

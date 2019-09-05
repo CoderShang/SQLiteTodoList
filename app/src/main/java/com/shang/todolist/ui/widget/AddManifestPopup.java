@@ -106,7 +106,7 @@ public class AddManifestPopup extends BottomPopupView implements View.OnClickLis
         switch (v.getId()) {
             case R.id.btn_add:
                 if (mBean == null) {
-                    insertValue(new ManifestBean(Calendar.getInstance().getTimeInMillis(), maxNum + 1, et_comment.getText().toString()));
+                    insertValue(new ManifestBean(Calendar.getInstance().getTimeInMillis(), maxNum, et_comment.getText().toString()));
                 } else {
                     mBean.name = et_comment.getText().toString();
                     updateValue(mBean);
