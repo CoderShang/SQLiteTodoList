@@ -32,4 +32,6 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'com.lxj:xpopup:1.8.8'
     implementation 'com.bigkoo:pickerview:2.0.8'
+    debugImplementation 'com.idescout.sql:sqlscout-server:4.1'
+    releaseImplementation 'com.idescout.sql:sqlscout-server-noop:4.1'
 }
