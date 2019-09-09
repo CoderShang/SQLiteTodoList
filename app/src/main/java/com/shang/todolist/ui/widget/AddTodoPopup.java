@@ -11,6 +11,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
@@ -20,6 +23,7 @@ import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.shang.todolist.App;
 import com.shang.todolist.R;
 import com.shang.todolist.UiUtils;
+import com.shang.todolist.db.CalendarDB;
 import com.shang.todolist.db.DbThreadPool;
 import com.shang.todolist.db.TodoBean;
 import com.shang.todolist.db.TodoListContract;
@@ -38,9 +42,11 @@ import java.util.Date;
 public class AddTodoPopup extends BottomPopupView implements View.OnClickListener {
     public EditText et_comment, et_desc;
     private ImageView btn_mark;
-    private ImageView btn_alarm;
-    private ImageView btn_add, btn_delete;
+    private TextView tv_time, tv_remind;
+    private ImageView btn_add, btn_delete, iv_del_time, iv_del_remind;
     private LinearLayout ll_add;
+    private RelativeLayout rl_remind;
+    private RelativeLayout rl_time;
     private int markFlag = 3;//默认 3  普通任务 灰色
     private int sort = 0;
     private int pos = -1;
@@ -78,12 +84,12 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
         et_comment = findViewById(R.id.et_comment);
         et_desc = findViewById(R.id.et_desc);
         btn_mark = findViewById(R.id.btn_mark);
-        btn_alarm = findViewById(R.id.btn_alarm);
+        rl_remind = findViewById(R.id.rl_remind);
+        rl_time = findViewById(R.id.rl_time);
         btn_add = findViewById(R.id.btn_add);
         btn_delete = findViewById(R.id.btn_delete);
         ll_add.setOnClickListener(this);
         btn_mark.setOnClickListener(this);
-        btn_alarm.setOnClickListener(this);
         btn_add.setOnClickListener(this);
         btn_delete.setOnClickListener(this);
         btn_add.setEnabled(false);
@@ -112,6 +118,7 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
         if (mBean != null) {
             btn_delete.setVisibility(VISIBLE);
             et_comment.setText(mBean.title);
+            et_comment.setSelection(mBean.title.length());
             et_desc.setText(mBean.description);
             btn_mark.setImageResource(switchMark(mBean.mark));
             //TODO 渲染⏰闹钟提醒
@@ -139,10 +146,11 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                                 });
                 popMark.show();
                 break;
-            case R.id.btn_alarm:
-                alarmTime = new Date().getTime();
-                btn_alarm.setImageResource(R.drawable.ic_alarm_flag);
-                break;
+//            case R.id.btn_alarm:
+//                alarmTime = new Date().getTime();
+//                iv_alarm.setImageResource(R.drawable.ic_alarm_flag);
+//                iv_alarm.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+//                break;
             case R.id.btn_add:
                 if (mBean == null) {
                     //TODO 添加⏰闹钟提醒
@@ -202,6 +210,17 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 contentValues.put(TodoListContract.TodoListColumns.MARK, addBean.mark);
                 contentValues.put(TodoListContract.TodoListColumns.MANIFEST, addBean.manifest);
                 App.get().getContentResolver().insert(TodoListContract.TodoListColumns.CONTENT_URI_ADD, contentValues);
+                CalendarDB.addCalendarEventRemind(App.get(), addBean.title, addBean.description, 0, 0, 0, new CalendarDB.onCalendarRemindListener() {
+                    @Override
+                    public void onFailed(Status error_code) {
+                        Toast.makeText(App.get(), "❌咦卧槽！闹钟创建失败了！", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(App.get(), "✔️闹钟创建成功！", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);

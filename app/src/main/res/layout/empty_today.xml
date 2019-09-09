@@ -4,15 +4,15 @@
     android:id="@+id/empty_today"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:paddingBottom="100dp"
     android:visibility="gone"
     tools:visibility="visible">
 
     <ImageView
         android:layout_width="80dp"
         android:layout_height="80dp"
+        android:layout_marginTop="150dp"
         android:src="@drawable/ic_coffee" />
 
     <TextView

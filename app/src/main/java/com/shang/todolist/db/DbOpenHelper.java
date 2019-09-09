@@ -13,7 +13,6 @@ public class DbOpenHelper extends SQLiteOpenHelper {
     public static final int DB_VERSION = 1;
     public static final String TABLE_TODOLIST = "TODOLIST";
     public static final String TABLE_MANIFEST = "MANIFEST";
-    public static final String TABLE_ALARM = "ALARM";
 
     private static DbOpenHelper helper;
 
@@ -91,9 +90,6 @@ public class DbOpenHelper extends SQLiteOpenHelper {
             database.beginTransaction();
             database.execSQL("delete from " + DbOpenHelper.TABLE_TODOLIST + ";");
             database.execSQL("delete from " + DbOpenHelper.TABLE_MANIFEST + ";");
-//            database.execSQL("delete from xxx;");
-//            database.execSQL("delete from xxx;");
-//            database.execSQL("delete from xxx;");
             database.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();

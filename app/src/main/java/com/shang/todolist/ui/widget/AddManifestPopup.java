@@ -20,7 +20,6 @@ import com.shang.todolist.db.ManifestBean;
 import com.shang.todolist.db.TodoListContract;
 import com.shang.todolist.event.DeleteManifestEvent;
 import com.shang.todolist.event.EditManifestEvent;
-import com.shang.todolist.event.EditTodoEvent;
 import com.shang.todolist.event.InsertManifestEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -69,14 +68,6 @@ public class AddManifestPopup extends BottomPopupView implements View.OnClickLis
         btn_add.setOnClickListener(this);
         btn_delete.setOnClickListener(this);
         btn_add.setEnabled(false);
-        if (mBean != null) {
-            btn_add.setImageResource(R.drawable.ic_done);
-            btn_delete.setVisibility(VISIBLE);
-            et_comment.setText(mBean.name);
-        } else {
-            btn_add.setImageResource(R.drawable.ic_add_circle);
-            btn_delete.setVisibility(GONE);
-        }
         et_comment.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -99,6 +90,15 @@ public class AddManifestPopup extends BottomPopupView implements View.OnClickLis
                 }
             }
         });
+        if (mBean != null) {
+            btn_add.setImageResource(R.drawable.ic_done);
+            btn_delete.setVisibility(VISIBLE);
+            et_comment.setText(mBean.name);
+            et_comment.setSelection(mBean.name.length());
+        } else {
+            btn_add.setImageResource(R.drawable.ic_add_circle);
+            btn_delete.setVisibility(GONE);
+        }
     }
 
     @Override

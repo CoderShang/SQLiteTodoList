@@ -33,31 +33,95 @@
         android:textSize="16sp" />
 
     <RelativeLayout
+        android:id="@+id/rl_time"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:minHeight="48dp">
+
+        <ImageView
+            android:id="@+id/iv_del_time"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="6dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_clear"
+            android:tint="@color/gray_999"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="6dp"
+            android:drawableLeft="@drawable/ic_time"
+            android:drawablePadding="10dp"
+            android:drawableTint="@color/gray_999"
+            android:gravity="center_vertical"
+            android:paddingLeft="6dp"
+            android:paddingRight="50dp"
+            android:text="设置时间"
+            android:textColor="@color/gray_color"
+            android:textSize="14sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_remind"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:minHeight="48dp">
+
+        <ImageView
+            android:id="@+id/iv_del_remind"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="6dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_clear"
+            android:tint="@color/gray_999"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_remind_minutes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="6dp"
+            android:drawableLeft="@drawable/ic_remind"
+            android:drawablePadding="10dp"
+            android:drawableTint="@color/gray_999"
+            android:gravity="center_vertical"
+            android:paddingLeft="6dp"
+            android:paddingRight="50dp"
+            android:text="设置提醒"
+            android:textColor="@color/gray_color"
+            android:textSize="14sp" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp">
 
         <ImageView
             android:id="@+id/btn_mark"
             android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_height="match_parent"
             android:foreground="?android:attr/selectableItemBackground"
             android:padding="12dp"
             android:src="@drawable/ic_urgent" />
 
         <ImageView
-            android:id="@+id/btn_alarm"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_toRightOf="@+id/btn_mark"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:padding="12dp"
-            android:src="@drawable/ic_add_alarm"
-            android:tint="@color/gray_color" />
-
-        <ImageView
             android:id="@+id/btn_delete"
             android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_marginRight="48dp"
             android:foreground="?android:attr/selectableItemBackground"
@@ -68,11 +132,13 @@
         <ImageView
             android:id="@+id/btn_add"
             android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
             android:padding="12dp"
             android:src="@drawable/ic_send"
             android:tint="@color/gray_999" />
+
     </RelativeLayout>
+
 </LinearLayout>
