@@ -10,6 +10,7 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowBackground">@drawable/bg_splash</item>
         <item name="android:windowAnimationStyle">@style/SlideAnimationStyle</item>
+        <item name="dialogCornerRadius">10dp</item>
     </style>
 
     <style name="AppTheme.MyAppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

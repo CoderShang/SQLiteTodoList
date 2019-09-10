@@ -3,16 +3,16 @@ package com.shang.todolist.ui.widget;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lxj.xpopup.XPopup;
@@ -30,6 +30,8 @@ import com.shang.todolist.db.TodoListContract;
 import com.shang.todolist.event.DeleteTodoEvent;
 import com.shang.todolist.event.EditTodoEvent;
 import com.shang.todolist.event.InsertTodoEvent;
+import com.shang.todolist.ui.MainActivity;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -39,14 +41,11 @@ import java.util.Date;
 /**
  * Description: 添加待办事项的底部弹窗
  */
-public class AddTodoPopup extends BottomPopupView implements View.OnClickListener {
+public class AddTodoPopup extends BottomPopupView implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
     public EditText et_comment, et_desc;
-    private ImageView btn_mark;
-    private TextView tv_time, tv_remind;
-    private ImageView btn_add, btn_delete, iv_del_time, iv_del_remind;
+    private ImageView btn_mark, btn_alarm;
+    private ImageView btn_add, btn_delete;
     private LinearLayout ll_add;
-    private RelativeLayout rl_remind;
-    private RelativeLayout rl_time;
     private int markFlag = 3;//默认 3  普通任务 灰色
     private int sort = 0;
     private int pos = -1;
@@ -69,7 +68,7 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
 
     @Override
     protected int getImplLayoutId() {
-        return R.layout.add_bottom_popup;
+        return R.layout.add_todo_popup;
     }
 
     @Override
@@ -84,14 +83,14 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
         et_comment = findViewById(R.id.et_comment);
         et_desc = findViewById(R.id.et_desc);
         btn_mark = findViewById(R.id.btn_mark);
-        rl_remind = findViewById(R.id.rl_remind);
-        rl_time = findViewById(R.id.rl_time);
+        btn_alarm = findViewById(R.id.btn_alarm);
         btn_add = findViewById(R.id.btn_add);
         btn_delete = findViewById(R.id.btn_delete);
         ll_add.setOnClickListener(this);
         btn_mark.setOnClickListener(this);
         btn_add.setOnClickListener(this);
         btn_delete.setOnClickListener(this);
+        btn_alarm.setOnClickListener(this);
         btn_add.setEnabled(false);
         et_comment.addTextChangedListener(new TextWatcher() {
             @Override
@@ -146,11 +145,6 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                                 });
                 popMark.show();
                 break;
-//            case R.id.btn_alarm:
-//                alarmTime = new Date().getTime();
-//                iv_alarm.setImageResource(R.drawable.ic_alarm_flag);
-//                iv_alarm.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorPrimary)));
-//                break;
             case R.id.btn_add:
                 if (mBean == null) {
                     //TODO 添加⏰闹钟提醒
@@ -170,9 +164,54 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 deleteValue(pos, mBean.id);
                 dismiss();
                 break;
+            case R.id.btn_alarm:
+//                alarmTime = new Date().getTime();
+//                btn_alarm.setImageResource(R.drawable.ic_alarm_flag);
+//                btn_alarm.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+                popUpPicker();
+                break;
             default:
                 break;
         }
+    }
+
+    private DatePickerDialog dpd;
+
+    private void popUpPicker() {
+        Calendar now = Calendar.getInstance();
+            /*
+            It is recommended to always create a new instance whenever you need to show a Dialog.
+            The sample app is reusing them because it is useful when looking for regressions
+            during testing
+             */
+        if (dpd == null) {
+            dpd = DatePickerDialog.newInstance(
+                    this,
+                    now.get(Calendar.YEAR),
+                    now.get(Calendar.MONTH),
+                    now.get(Calendar.DAY_OF_MONTH)
+            );
+        } else {
+            dpd.initialize(
+                    this,
+                    now.get(Calendar.YEAR),
+                    now.get(Calendar.MONTH),
+                    now.get(Calendar.DAY_OF_MONTH)
+            );
+        }
+//        dpd.setThemeDark(false);
+        dpd.setVersion(DatePickerDialog.Version.VERSION_2);
+        dpd.setAccentColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
+        dpd.setTitle("设置闹钟");
+        Calendar date1 = Calendar.getInstance();
+        Calendar[] days = {date1};
+        dpd.setHighlightedDays(days);
+        dpd.setScrollOrientation(DatePickerDialog.ScrollOrientation.VERTICAL);
+        dpd.setOnCancelListener(dialog -> {
+            Log.d("DatePickerDialog", "Dialog was cancelled");
+            dpd = null;
+        });
+        dpd.show(((MainActivity) getContext()).getSupportFragmentManager(), "Datepickerdialog");
     }
 
     private int switchMark(int position) {
@@ -255,5 +294,10 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
         EventBus.getDefault().post(new EditTodoEvent(updateBean));
+    }
+
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+
     }
 }

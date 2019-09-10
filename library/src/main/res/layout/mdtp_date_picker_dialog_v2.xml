@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/mdtp_date_picker_view_animator"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <include layout="@layout/mdtp_date_picker_header_view_v2" />
+    <include layout="@layout/mdtp_date_picker_selected_date_v2" />
+
+    <include layout="@layout/mdtp_date_picker_view_animator_v2" />
+
+    <RelativeLayout
+        android:id="@+id/rl_time"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:foreground="?android:attr/selectableItemBackground">
+        <ImageView
+            android:id="@+id/iv_time"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            android:src="@drawable/ic_time"
+            />
+
+        <TextView
+            android:id="@+id/tv_label_time"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:text="时间"
+            android:layout_toRightOf="@+id/iv_time"
+            android:textColor="#999999"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="40dp"
+            android:textColor="#999999"
+            android:textSize="12sp"
+            android:text="无" />
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            android:src="@drawable/ic_arrow" />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_remind"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:foreground="?android:attr/selectableItemBackground">
+        <ImageView
+            android:id="@+id/iv_remind"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            android:src="@drawable/ic_remind"
+            />
+
+        <TextView
+            android:id="@+id/tv_label_remind"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:text="提醒"
+            android:layout_toRightOf="@+id/iv_remind"
+            android:textColor="#999999"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_remind"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="40dp"
+            android:textColor="#999999"
+            android:textSize="12sp"
+            android:text="无" />
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            android:src="@drawable/ic_arrow" />
+    </RelativeLayout>
+    <include layout="@layout/mdtp_done_button" />
+
+</LinearLayout>
