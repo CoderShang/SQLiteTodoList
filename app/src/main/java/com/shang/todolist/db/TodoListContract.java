@@ -48,6 +48,10 @@ public final class TodoListContract {
          */
         String ALARM = "ALARM";
         /**
+         * 提醒时间
+         */
+        String REMIND = "REMIND";
+        /**
          * 状态 0代办，1已处理
          */
         String STATUS = "STATUS";

@@ -66,6 +66,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         sql.append("TITLE        TEXT    NOT NULL,");
         sql.append("DESCRIPTION  TEXT,");
         sql.append("ALARM        INTEGER64,");
+        sql.append("REMIND        INTEGER,");
         sql.append("STATUS       INTEGER,");
         sql.append("MARK         INTEGER,");
         sql.append("MANIFEST       INTEGER64);");

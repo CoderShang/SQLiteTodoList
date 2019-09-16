@@ -31,6 +31,7 @@ import com.shang.todolist.event.DeleteTodoEvent;
 import com.shang.todolist.event.EditTodoEvent;
 import com.shang.todolist.event.InsertTodoEvent;
 import com.shang.todolist.ui.MainActivity;
+import com.wdullaer.materialdatetimepicker.Utils;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.greenrobot.eventbus.EventBus;
@@ -50,9 +51,10 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
     private int sort = 0;
     private int pos = -1;
     private long manifest = 0;
-    private long alarmTime;//闹钟
     private TodoBean mBean;
     private BasePopupView popMark;
+    private long alarmTime;
+    private int remindIndex;
 
     public AddTodoPopup(@NonNull Context context, int sort, long manifest) {
         super(context);
@@ -78,7 +80,6 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
     }
 
     private void initView() {
-        //TODO ⏰闹钟提醒UI布局
         ll_add = findViewById(R.id.ll_add);
         et_comment = findViewById(R.id.et_comment);
         et_desc = findViewById(R.id.et_desc);
@@ -120,8 +121,38 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
             et_comment.setSelection(mBean.title.length());
             et_desc.setText(mBean.description);
             btn_mark.setImageResource(switchMark(mBean.mark));
-            //TODO 渲染⏰闹钟提醒
+            if (mBean.alarm != 0) {
+                this.remindIndex = mBean.remind;
+                this.alarmTime = mBean.alarm;
+            }
         }
+    }
+
+    public void cleanAndAdd() {
+        mBean = null;
+        markFlag = 3;//默认 3  普通任务 灰色
+        sort = sort++;
+        pos = -1;
+        manifest = 0;
+        remindIndex = 0;
+        alarmTime = 0;
+        et_comment.setText("");
+        et_desc.setText("");
+        btn_mark.setImageResource(switchMark(markFlag));
+        mCalendar = null;
+        btn_alarm.setImageResource(R.drawable.ic_add_alarm);
+        btn_alarm.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.gray_999)));
+    }
+
+    @Override
+    public BasePopupView show() {
+        if (alarmTime != 0) {
+            mCalendar = Calendar.getInstance();
+            mCalendar.setTimeInMillis(alarmTime);
+            btn_alarm.setImageResource(R.drawable.ic_alarm_flag);
+            btn_alarm.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+        }
+        return super.show();
     }
 
     @Override
@@ -149,7 +180,7 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 if (mBean == null) {
                     //TODO 添加⏰闹钟提醒
                     mBean = new TodoBean(Calendar.getInstance().getTimeInMillis(),
-                            sort, et_comment.getText().toString(), et_desc.getText().toString(), 0, false, markFlag, manifest);
+                            sort, et_comment.getText().toString(), et_desc.getText().toString(), alarmTime, remindIndex, false, markFlag, manifest);
                     insertValue(mBean);
                 } else {
                     mBean.title = et_comment.getText().toString();
@@ -165,9 +196,6 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 dismiss();
                 break;
             case R.id.btn_alarm:
-//                alarmTime = new Date().getTime();
-//                btn_alarm.setImageResource(R.drawable.ic_alarm_flag);
-//                btn_alarm.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorPrimary)));
                 popUpPicker();
                 break;
             default:
@@ -176,30 +204,21 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
     }
 
     private DatePickerDialog dpd;
+    private Calendar mCalendar;
 
     private void popUpPicker() {
+        UiUtils.hideSoftKeyboard(getContext(), et_comment);
         Calendar now = Calendar.getInstance();
-            /*
-            It is recommended to always create a new instance whenever you need to show a Dialog.
-            The sample app is reusing them because it is useful when looking for regressions
-            during testing
-             */
-        if (dpd == null) {
-            dpd = DatePickerDialog.newInstance(
-                    this,
-                    now.get(Calendar.YEAR),
-                    now.get(Calendar.MONTH),
-                    now.get(Calendar.DAY_OF_MONTH)
-            );
-        } else {
-            dpd.initialize(
-                    this,
-                    now.get(Calendar.YEAR),
-                    now.get(Calendar.MONTH),
-                    now.get(Calendar.DAY_OF_MONTH)
-            );
+        boolean flag = false;
+        if (mCalendar != null) {
+            now = Utils.trimToMidnight((Calendar) mCalendar.clone());
+            flag = true;
         }
-//        dpd.setThemeDark(false);
+        if (dpd == null) {
+            dpd = DatePickerDialog.newInstance(this, now, flag, remindIndex);
+        } else {
+            dpd.initialize(this, now, flag, remindIndex);
+        }
         dpd.setVersion(DatePickerDialog.Version.VERSION_2);
         dpd.setAccentColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
         dpd.setTitle("设置闹钟");
@@ -208,7 +227,6 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
         dpd.setHighlightedDays(days);
         dpd.setScrollOrientation(DatePickerDialog.ScrollOrientation.VERTICAL);
         dpd.setOnCancelListener(dialog -> {
-            Log.d("DatePickerDialog", "Dialog was cancelled");
             dpd = null;
         });
         dpd.show(((MainActivity) getContext()).getSupportFragmentManager(), "Datepickerdialog");
@@ -245,21 +263,22 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 contentValues.put(TodoListContract.TodoListColumns.TITLE, addBean.title);
                 contentValues.put(TodoListContract.TodoListColumns.DESCRIPTION, addBean.description);
                 contentValues.put(TodoListContract.TodoListColumns.ALARM, addBean.alarm);
+                contentValues.put(TodoListContract.TodoListColumns.REMIND, addBean.remind);
                 contentValues.put(TodoListContract.TodoListColumns.STATUS, addBean.status ? 1 : 0);
                 contentValues.put(TodoListContract.TodoListColumns.MARK, addBean.mark);
                 contentValues.put(TodoListContract.TodoListColumns.MANIFEST, addBean.manifest);
                 App.get().getContentResolver().insert(TodoListContract.TodoListColumns.CONTENT_URI_ADD, contentValues);
-                CalendarDB.addCalendarEventRemind(App.get(), addBean.title, addBean.description, 0, 0, 0, new CalendarDB.onCalendarRemindListener() {
-                    @Override
-                    public void onFailed(Status error_code) {
-                        Toast.makeText(App.get(), "❌咦卧槽！闹钟创建失败了！", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(App.get(), "✔️闹钟创建成功！", Toast.LENGTH_SHORT).show();
-                    }
-                });
+//                CalendarDB.addCalendarEventRemind(App.get(), addBean.title, addBean.description, 0, 0, 0, new CalendarDB.onCalendarRemindListener() {
+//                    @Override
+//                    public void onFailed(Status error_code) {
+//                        Toast.makeText(App.get(), "❌咦卧槽！闹钟创建失败了！", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                    @Override
+//                    public void onSuccess() {
+//                        Toast.makeText(App.get(), "✔️闹钟创建成功！", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
@@ -280,7 +299,6 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
     }
 
     private void updateValue(final TodoBean updateBean) {
-        //TODO 保存⏰闹钟提醒字段
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
@@ -288,6 +306,7 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 contentValues.put(TodoListContract.TodoListColumns.TITLE, updateBean.title);
                 contentValues.put(TodoListContract.TodoListColumns.DESCRIPTION, updateBean.description);
                 contentValues.put(TodoListContract.TodoListColumns.ALARM, updateBean.alarm);
+                contentValues.put(TodoListContract.TodoListColumns.REMIND, updateBean.remind);
                 contentValues.put(TodoListContract.TodoListColumns.MARK, updateBean.mark);
                 App.get().getContentResolver().update(TodoListContract.TodoListColumns.CONTENT_URI_UPDATE, contentValues, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(updateBean.id)});
             }
@@ -297,7 +316,18 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
     }
 
     @Override
-    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-
+    public void onDateSet(DatePickerDialog view, Calendar mCal, int remindIndex) {
+        this.remindIndex = remindIndex;
+        if (mCal == null) {
+            mCalendar = null;
+            alarmTime = 0;
+            btn_alarm.setImageResource(R.drawable.ic_add_alarm);
+            btn_alarm.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.gray_999)));
+            return;
+        }
+        mCalendar = mCal;
+        alarmTime = mCalendar.getTimeInMillis();
+        btn_alarm.setImageResource(R.drawable.ic_alarm_flag);
+        btn_alarm.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorPrimary)));
     }
 }

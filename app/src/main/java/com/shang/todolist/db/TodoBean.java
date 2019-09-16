@@ -17,6 +17,7 @@ public class TodoBean implements Parcelable {
     public String description = "";
     //待办时间
     public long alarm;
+    public int remind;
     //状态 0代办(false)，1已处理(true)
     public boolean status;
     //标记优先级 0:红色    1:橙色   2:蓝色    3:普通任务
@@ -27,12 +28,13 @@ public class TodoBean implements Parcelable {
     public TodoBean() {
     }
 
-    public TodoBean(long id, int sortId, String title, String description, long alarm, boolean status, int mark, long manifest) {
+    public TodoBean(long id, int sortId, String title, String description, long alarm, int remind, boolean status, int mark, long manifest) {
         this.id = id;
         this.sortId = sortId;
         this.title = title;
         this.description = description;
         this.alarm = alarm;
+        this.remind = remind;
         this.status = status;
         this.mark = mark;
         this.manifest = manifest;
@@ -50,6 +52,7 @@ public class TodoBean implements Parcelable {
         dest.writeString(this.title);
         dest.writeString(this.description);
         dest.writeLong(this.alarm);
+        dest.writeInt(this.remind);
         dest.writeByte(this.status ? (byte) 1 : (byte) 0);
         dest.writeInt(this.mark);
         dest.writeLong(this.manifest);
@@ -61,6 +64,7 @@ public class TodoBean implements Parcelable {
         this.title = in.readString();
         this.description = in.readString();
         this.alarm = in.readLong();
+        this.remind = in.readInt();
         this.status = in.readByte() != 0;
         this.mark = in.readInt();
         this.manifest = in.readLong();

@@ -30,10 +30,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -51,7 +51,6 @@ import com.wdullaer.materialdatetimepicker.HapticFeedbackController;
 import com.wdullaer.materialdatetimepicker.R;
 import com.wdullaer.materialdatetimepicker.Utils;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
-import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -180,14 +179,7 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
      */
     public interface OnDateSetListener {
 
-        /**
-         * @param view        The view associated with this listener.
-         * @param year        The year that was set.
-         * @param monthOfYear The month that was set (0-11) for compatibility
-         *                    with {@link java.util.Calendar}.
-         * @param dayOfMonth  The day of the month that was set.
-         */
-        void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth);
+        void onDateSet(DatePickerDialog view, Calendar mCal, int remindIndex);
     }
 
     /**
@@ -203,21 +195,6 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
     }
 
     /**
-     * Create a new DatePickerDialog instance with a specific initial selection.
-     *
-     * @param callBack    How the parent is notified that the date is set.
-     * @param year        The initial year of the dialog.
-     * @param monthOfYear The initial month of the dialog.
-     * @param dayOfMonth  The initial day of the dialog.
-     * @return a new DatePickerDialog instance.
-     */
-    public static DatePickerDialog newInstance(OnDateSetListener callBack, int year, int monthOfYear, int dayOfMonth) {
-        DatePickerDialog ret = new DatePickerDialog();
-        ret.initialize(callBack, year, monthOfYear, dayOfMonth);
-        return ret;
-    }
-
-    /**
      * Create a new DatePickerDialog instance initialised to the current system date.
      *
      * @param callback How the parent is notified that the date is set.
@@ -226,41 +203,27 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
     @SuppressWarnings({"unused", "WeakerAccess"})
     public static DatePickerDialog newInstance(OnDateSetListener callback) {
         Calendar now = Calendar.getInstance();
-        return DatePickerDialog.newInstance(callback, now);
+        return DatePickerDialog.newInstance(callback, now, false, 0);
     }
 
-    /**
-     * Create a new DatePickerDialog instance with a specific initial selection.
-     *
-     * @param callback         How the parent is notified that the date is set.
-     * @param initialSelection A Calendar object containing the original selection of the picker.
-     *                         (Time is ignored by trimming the Calendar to midnight in the current
-     *                         TimeZone of the Calendar object)
-     * @return a new DatePickerDialog instance
-     */
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public static DatePickerDialog newInstance(OnDateSetListener callback, Calendar initialSelection) {
+    public static DatePickerDialog newInstance(OnDateSetListener callback, Calendar initialSelection, boolean isSelected, int remindIndex) {
         DatePickerDialog ret = new DatePickerDialog();
-        ret.initialize(callback, initialSelection);
+        ret.initialize(callback, initialSelection, isSelected, remindIndex);
         return ret;
     }
 
-    public void initialize(OnDateSetListener callBack, Calendar initialSelection) {
+    public void initialize(OnDateSetListener callBack, Calendar initialSelection, boolean isSelected, int remindIndex) {
         mCallBack = callBack;
         mCalendar = Utils.trimToMidnight((Calendar) initialSelection.clone());
         mScrollOrientation = null;
         //noinspection deprecation
         setTimeZone(mCalendar.getTimeZone());
-
         mVersion = Build.VERSION.SDK_INT < Build.VERSION_CODES.M ? Version.VERSION_1 : Version.VERSION_2;
-    }
-
-    public void initialize(OnDateSetListener callBack, int year, int monthOfYear, int dayOfMonth) {
-        Calendar cal = Calendar.getInstance(getTimeZone());
-        cal.set(Calendar.YEAR, year);
-        cal.set(Calendar.MONTH, monthOfYear);
-        cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-        this.initialize(callBack, cal);
+        if (isSelected) {
+            timeCalendar = Utils.trimToMidnight((Calendar) initialSelection.clone());
+        }
+        this.remindIndex = remindIndex;
     }
 
     @Override
@@ -400,7 +363,21 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
         tv_remind = view.findViewById(R.id.tv_remind);
         rl_time.setOnClickListener(this);
         rl_remind.setOnClickListener(this);
-
+        selectRemind(remindIndex, items[remindIndex]);
+        if (timeCalendar != null) {
+            String hourStr = String.valueOf(timeCalendar.get(Calendar.HOUR_OF_DAY));
+            String minStr = String.valueOf(timeCalendar.get(Calendar.MINUTE));
+            if (hourStr.length() == 1) {
+                hourStr = "0" + hourStr;
+            }
+            if (minStr.length() == 1) {
+                minStr = "0" + minStr;
+            }
+            tv_time.setText(hourStr + ":" + minStr);
+            tv_time.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+            tv_label_time.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+            iv_time.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+        }
         mDatePickerHeaderView = view.findViewById(R.id.mdtp_date_picker_header);
         mMonthAndDayView = view.findViewById(R.id.mdtp_date_picker_month_and_day);
         mMonthAndDayView.setOnClickListener(this);
@@ -443,6 +420,10 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
 
         Button okButton = view.findViewById(R.id.mdtp_ok);
         okButton.setOnClickListener(v -> {
+            if (timeCalendar == null) {
+                showTime();
+                return;
+            }
             tryVibrate();
             notifyOnDateListener();
             dismiss();
@@ -451,6 +432,12 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
         if (mOkString != null) okButton.setText(mOkString);
         else okButton.setText(mOkResid);
 
+        Button cleanButton = view.findViewById(R.id.mdtp_clean);
+        cleanButton.setOnClickListener(v -> {
+            tryVibrate();
+            notifyCleanData();
+            dismiss();
+        });
         Button cancelButton = view.findViewById(R.id.mdtp_cancel);
         cancelButton.setOnClickListener(v -> {
             tryVibrate();
@@ -1084,6 +1071,8 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
         return mDateRangeLimiter.setToNearestDate(calendar);
     }
 
+    private Calendar timeCalendar;
+
     @Override
     public void onClick(View v) {
         tryVibrate();
@@ -1092,40 +1081,52 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
         } else if (v.getId() == R.id.mdtp_date_picker_month_and_day) {
             setCurrentView(MONTH_AND_DAY_VIEW);
         } else if (v.getId() == R.id.rl_time) {
-            Calendar now = Calendar.getInstance();
-            /*
-            It is recommended to always create a new instance whenever you need to show a Dialog.
-            The sample app is reusing them because it is useful when looking for regressions
-            during testing
-             */
-            if (tpd == null) {
-                tpd = TimePickerDialog.newInstance(
-                        this,
-                        now.get(Calendar.HOUR_OF_DAY),
-                        now.get(Calendar.MINUTE),
-                        true
-                );
-            } else {
-                tpd.initialize(
-                        this,
-                        now.get(Calendar.HOUR_OF_DAY),
-                        now.get(Calendar.MINUTE),
-                        now.get(Calendar.SECOND),
-                        true
-                );
-            }
-            tpd.setAccentColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
-            tpd.setOnCancelListener(dialogInterface -> {
-                tv_time.setText("无");
-                tv_time.setTextColor(ContextCompat.getColor(getContext(), R.color.gray_999));
-                tv_label_time.setTextColor(ContextCompat.getColor(getContext(), R.color.gray_999));
-                iv_time.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.gray_999)));
-                tpd = null;
-            });
-            tpd.show(requireFragmentManager(), "Timepickerdialog");
+            showTime();
         } else if (v.getId() == R.id.rl_remind) {
-
+            showRemindDialog();
         }
+    }
+
+    private void showTime() {
+        Calendar now = Calendar.getInstance();
+        if (timeCalendar != null) {
+            now.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+            now.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+        }
+        if (tpd == null) {
+            tpd = TimePickerDialog.newInstance(
+                    this,
+                    now.get(Calendar.HOUR_OF_DAY),
+                    now.get(Calendar.MINUTE),
+                    true
+            );
+        } else {
+            tpd.initialize(
+                    this,
+                    now.get(Calendar.HOUR_OF_DAY),
+                    now.get(Calendar.MINUTE),
+                    now.get(Calendar.SECOND),
+                    true
+            );
+        }
+        tpd.setAccentColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
+        tpd.setOnCancelListener(dialogInterface -> {
+            tpd = null;
+        });
+        tpd.show(requireFragmentManager(), "Timepickerdialog");
+    }
+
+    private void selectRemind(int position, String text) {
+        tv_remind.setText(text);
+        int tv_color;
+        if (position == 0) {
+            tv_color = R.color.gray_999;
+        } else {
+            tv_color = R.color.colorPrimary;
+        }
+        tv_remind.setTextColor(ContextCompat.getColor(getContext(), tv_color));
+        tv_label_remind.setTextColor(ContextCompat.getColor(getContext(), tv_color));
+        iv_remind.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), tv_color)));
     }
 
     @Override
@@ -1213,16 +1214,86 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
 
     public void notifyOnDateListener() {
         if (mCallBack != null) {
-            mCallBack.onDateSet(DatePickerDialog.this, mCalendar.get(Calendar.YEAR),
-                    mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH));
+            if (timeCalendar != null) {
+                mCalendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+                mCalendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+            } else {
+                mCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                mCalendar.set(Calendar.MINUTE, 0);
+                remindIndex = 0;
+            }
+            mCallBack.onDateSet(DatePickerDialog.this, mCalendar, remindIndex);
+        }
+    }
+
+    public void notifyCleanData() {
+        if (mCallBack != null) {
+            mCallBack.onDateSet(DatePickerDialog.this, null, 0);
         }
     }
 
     @Override
     public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-        tv_time.setText(hourOfDay + ":" + minute);
+        if (hourOfDay == 0 && minute == 0) {
+            timeCalendar = null;
+            tv_time.setText("无");
+            tv_time.setTextColor(ContextCompat.getColor(getContext(), R.color.gray_999));
+            tv_label_time.setTextColor(ContextCompat.getColor(getContext(), R.color.gray_999));
+            iv_time.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.gray_999)));
+            remindIndex = 0;
+            selectRemind(0, "无");
+            return;
+        }
+        timeCalendar = Calendar.getInstance();
+        timeCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        timeCalendar.set(Calendar.MINUTE, minute);
+        String hourStr = String.valueOf(hourOfDay);
+        String minStr = String.valueOf(minute);
+        if (hourStr.length() == 1) {
+            hourStr = "0" + hourStr;
+        }
+        if (minStr.length() == 1) {
+            minStr = "0" + minStr;
+        }
+        tv_time.setText(hourStr + ":" + minStr);
         tv_time.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         tv_label_time.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         iv_time.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+    }
+
+    // 单选提示框
+    private AlertDialog mRemindDialog;
+    private int remindIndex = 0;
+    private String[] items = {"无", "提前5分钟", "提前10分钟", "提前30分钟", "提前1小时", "提前2小时"};
+
+    public void showRemindDialog() {
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getContext());
+        alertBuilder.setTitle("选择提醒时间");
+        alertBuilder.setSingleChoiceItems(items, remindIndex, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                remindIndex = i;
+            }
+        });
+        alertBuilder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface arg0, int arg1) {
+                selectRemind(remindIndex, items[remindIndex]);
+                mRemindDialog.dismiss();
+            }
+        });
+        alertBuilder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface arg0, int arg1) {
+                // TODO 业务逻辑代码
+                // 关闭提示框
+                mRemindDialog.dismiss();
+            }
+        });
+        mRemindDialog = alertBuilder.create();
+        mRemindDialog.show();
+        mRemindDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
+        mRemindDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
     }
 }

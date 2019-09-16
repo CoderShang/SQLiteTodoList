@@ -32,6 +32,7 @@ import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.listener.OnItemDragListener;
 import com.chad.library.adapter.base.listener.OnItemSwipeListener;
 import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupAnimation;
 import com.lxj.xpopup.interfaces.XPopupCallback;
 import com.shang.todolist.App;
@@ -85,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int fromPos;//记录排序from 和 to 的位置
     private long deleteId;//记录准备删除的ID主键
     private int todaySum;//总数
+    private BasePopupView mBasePopupView;
+    private AddTodoPopup mAddTodoPop;
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -190,31 +193,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     sort = mManifestList.get(mClickPos).num;
                     manifest = mManifestList.get(mClickPos).id;
                 }
-                AddTodoPopup pop = new AddTodoPopup(MainActivity.this, sort, manifest);
-                new XPopup.Builder(MainActivity.this)
-                        .autoOpenSoftInput(true)
-                        .setPopupCallback(new XPopupCallback() {
-                            @Override
-                            public void onCreated() {
+                if (mBasePopupView == null) {
+                    mAddTodoPop = new AddTodoPopup(MainActivity.this, sort, manifest);
+                    mBasePopupView = new XPopup.Builder(MainActivity.this)
+                            .autoOpenSoftInput(true)
+                            .setPopupCallback(new XPopupCallback() {
+                                @Override
+                                public void onCreated() {
 
-                            }
+                                }
 
-                            @Override
-                            public void onShow() {
+                                @Override
+                                public void onShow() {
 
-                            }
+                                }
 
-                            @Override
-                            public void onDismiss() {
-                                fab.show();
-                            }
+                                @Override
+                                public void onDismiss() {
+                                    fab.show();
+                                }
 
-                            @Override
-                            public boolean onBackPressed() {
-                                return false;
-                            }
-                        })
-                        .asCustom(pop).show();
+                                @Override
+                                public boolean onBackPressed() {
+                                    return false;
+                                }
+                            })
+                            .asCustom(mAddTodoPop);
+                }
+                mBasePopupView.show();
             }
         });
 
@@ -226,6 +232,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
                 if (uri.getPath().contains(TodoListContract.TodoListColumns.addPath)) {
+                    if (mAddTodoPop != null) {
+                        mAddTodoPop.cleanAndAdd();
+                    }
                     queryValue();
                     Log.d("Insert:新增了一条数据！", uri.getPath());
                 } else if (uri.getPath().contains(TodoListContract.TodoListColumns.deletePath)) {

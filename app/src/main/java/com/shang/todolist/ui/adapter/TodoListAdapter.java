@@ -45,8 +45,8 @@ public class TodoListAdapter extends BaseItemDraggableAdapter<TodoBean, BaseView
         if (item.alarm == 0) {
             iv_alarm.setVisibility(View.GONE);
         } else {
+            iv_alarm.setVisibility(View.VISIBLE);
         }
-        iv_alarm.setVisibility(View.VISIBLE);
         cb_status.setEnabled(true);
         int card_color;
         int status_color;

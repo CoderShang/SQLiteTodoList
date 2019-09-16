@@ -22,7 +22,14 @@
     android:gravity="end|right"
     android:layout_gravity="center_vertical"
     android:paddingBottom="8dp">
-
+    <Button
+        android:id="@+id/mdtp_clean"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
+        style="@style/mdtp_ActionButton.Text"
+        android:text="清空" />
     <Button
         android:id="@+id/mdtp_cancel"
         android:layout_height="wrap_content"
