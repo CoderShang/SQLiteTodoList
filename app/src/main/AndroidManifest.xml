@@ -25,11 +25,6 @@
             android:name=".db.TodoListProvider"
             android:authorities="com.shang.todolist"
             android:exported="false" />
-        <receiver android:name=".alarm.LoongggAlarmReceiver">
-            <intent-filter>
-                <action android:name="com.loonggg.alarm.clock" />
-            </intent-filter>
-        </receiver>
     </application>
 
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />

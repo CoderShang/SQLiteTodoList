@@ -34,6 +34,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -46,6 +47,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.HapticFeedbackController;
 import com.wdullaer.materialdatetimepicker.R;
@@ -221,7 +223,13 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
         setTimeZone(mCalendar.getTimeZone());
         mVersion = Build.VERSION.SDK_INT < Build.VERSION_CODES.M ? Version.VERSION_1 : Version.VERSION_2;
         if (isSelected) {
-            timeCalendar = Utils.trimToMidnight((Calendar) initialSelection.clone());
+            Log.d("时间戳：", initialSelection.get(Calendar.HOUR_OF_DAY) + "---" + initialSelection.get(Calendar.MINUTE));
+            timeCalendar = Calendar.getInstance();
+            timeCalendar.set(Calendar.HOUR_OF_DAY, initialSelection.get(Calendar.HOUR_OF_DAY));
+            timeCalendar.set(Calendar.MINUTE, initialSelection.get(Calendar.MINUTE));
+            timeCalendar.set(Calendar.SECOND, 0);
+        } else {
+            timeCalendar = null;
         }
         this.remindIndex = remindIndex;
     }
@@ -377,6 +385,11 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
             tv_time.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
             tv_label_time.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
             iv_time.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+        } else {
+            tv_time.setText("无");
+            tv_time.setTextColor(ContextCompat.getColor(getContext(), R.color.gray_999));
+            tv_label_time.setTextColor(ContextCompat.getColor(getContext(), R.color.gray_999));
+            iv_time.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.gray_999)));
         }
         mDatePickerHeaderView = view.findViewById(R.id.mdtp_date_picker_header);
         mMonthAndDayView = view.findViewById(R.id.mdtp_date_picker_month_and_day);
@@ -1222,6 +1235,7 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
                 mCalendar.set(Calendar.MINUTE, 0);
                 remindIndex = 0;
             }
+            mCalendar.set(Calendar.SECOND, 0);
             mCallBack.onDateSet(DatePickerDialog.this, mCalendar, remindIndex);
         }
     }
@@ -1286,7 +1300,6 @@ public class DatePickerDialog extends AppCompatDialogFragment implements
 
             @Override
             public void onClick(DialogInterface arg0, int arg1) {
-                // TODO 业务逻辑代码
                 // 关闭提示框
                 mRemindDialog.dismiss();
             }

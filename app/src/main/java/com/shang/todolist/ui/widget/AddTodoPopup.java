@@ -31,13 +31,11 @@ import com.shang.todolist.event.DeleteTodoEvent;
 import com.shang.todolist.event.EditTodoEvent;
 import com.shang.todolist.event.InsertTodoEvent;
 import com.shang.todolist.ui.MainActivity;
-import com.wdullaer.materialdatetimepicker.Utils;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Description: 添加待办事项的底部弹窗
@@ -178,7 +176,6 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 break;
             case R.id.btn_add:
                 if (mBean == null) {
-                    //TODO 添加⏰闹钟提醒
                     mBean = new TodoBean(Calendar.getInstance().getTimeInMillis(),
                             sort, et_comment.getText().toString(), et_desc.getText().toString(), alarmTime, remindIndex, false, markFlag, manifest);
                     insertValue(mBean);
@@ -186,7 +183,8 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                     mBean.title = et_comment.getText().toString();
                     mBean.description = et_desc.getText().toString();
                     mBean.mark = markFlag;
-                    //TODO 保存⏰闹钟提醒
+                    mBean.alarm = alarmTime;
+                    mBean.remind = remindIndex;
                     updateValue(mBean);
                 }
                 dismiss();
@@ -211,7 +209,7 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
         Calendar now = Calendar.getInstance();
         boolean flag = false;
         if (mCalendar != null) {
-            now = Utils.trimToMidnight((Calendar) mCalendar.clone());
+            now = mCalendar;
             flag = true;
         }
         if (dpd == null) {
@@ -253,7 +251,6 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
     }
 
     private void insertValue(final TodoBean addBean) {
-        //TODO 新增⏰闹钟表数据
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
@@ -268,29 +265,61 @@ public class AddTodoPopup extends BottomPopupView implements View.OnClickListene
                 contentValues.put(TodoListContract.TodoListColumns.MARK, addBean.mark);
                 contentValues.put(TodoListContract.TodoListColumns.MANIFEST, addBean.manifest);
                 App.get().getContentResolver().insert(TodoListContract.TodoListColumns.CONTENT_URI_ADD, contentValues);
-//                CalendarDB.addCalendarEventRemind(App.get(), addBean.title, addBean.description, 0, 0, 0, new CalendarDB.onCalendarRemindListener() {
-//                    @Override
-//                    public void onFailed(Status error_code) {
-//                        Toast.makeText(App.get(), "❌咦卧槽！闹钟创建失败了！", Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                    @Override
-//                    public void onSuccess() {
-//                        Toast.makeText(App.get(), "✔️闹钟创建成功！", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
+                // 新增⏰闹钟表数据
+                CalendarDB.addCalendarEventRemind(App.get(), addBean.title, addBean.description, addBean.alarm, addBean.alarm, getRemindMin(remindIndex), new CalendarDB.onCalendarRemindListener() {
+                    @Override
+                    public void onFailed(Status error_code) {
+
+                    }
+
+                    @Override
+                    public void onSuccess() {
+
+                    }
+                });
             }
         };
         DbThreadPool.getThreadPool().exeute(updateTask);
         EventBus.getDefault().post(new InsertTodoEvent(addBean));
     }
 
+    /**
+     * 获取提前提醒的分钟数：
+     * "无", "提前5分钟", "提前10分钟", "提前30分钟", "提前1小时", "提前2小时"
+     *
+     * @param remindIndex
+     * @return
+     */
+    private int getRemindMin(int remindIndex) {
+        int minute;
+        switch (remindIndex) {
+            case 1:
+                minute = 5;
+                break;
+            case 2:
+                minute = 10;
+                break;
+            case 3:
+                minute = 30;
+                break;
+            case 4:
+                minute = 60;
+                break;
+            case 5:
+                minute = 120;
+                break;
+            default:
+                minute = 0;
+        }
+        return minute;
+    }
+
     private void deleteValue(int pos, final long deleteId) {
-        //TODO 删除⏰闹钟表数据
         Runnable deleteTask = new Runnable() {
             @Override
             public void run() {
                 App.get().getContentResolver().delete(TodoListContract.TodoListColumns.CONTENT_URI_DELETE, TodoListContract.TodoListColumns._ID + "=?", new String[]{String.valueOf(deleteId)});
+                //TODO 删除⏰闹钟表数据
             }
         };
         DbThreadPool.getThreadPool().exeute(deleteTask);

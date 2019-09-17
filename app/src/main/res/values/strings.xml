@@ -21,6 +21,10 @@
     <string name="add_a_manifest">添加清单</string>
     <string name="clear_all">清空所有数据</string>
     <string name="about">关于</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="request_permission">此App需要访问您的日历，以帮助您更好的使用它。</string>
+<!--    <string name="request_permission">This App needs access to your calendar to help you make better use of it.</string>-->
 
     <string name="week_monday">星期一</string>
     <string name="week_tuesday">星期二</string>

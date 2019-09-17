@@ -1,5 +1,6 @@
 package com.shang.todolist.ui;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -26,6 +28,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -33,7 +36,6 @@ import com.chad.library.adapter.base.listener.OnItemDragListener;
 import com.chad.library.adapter.base.listener.OnItemSwipeListener;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
-import com.lxj.xpopup.enums.PopupAnimation;
 import com.lxj.xpopup.interfaces.XPopupCallback;
 import com.shang.todolist.App;
 import com.shang.todolist.R;
@@ -50,7 +52,6 @@ import com.shang.todolist.ui.adapter.ItemDragAndSwipeCallback;
 import com.shang.todolist.ui.adapter.MainAdapter;
 import com.shang.todolist.ui.widget.AddManifestPopup;
 import com.shang.todolist.ui.widget.AddTodoPopup;
-import com.shang.todolist.ui.widget.CustomPopup;
 import com.shang.todolist.ui.widget.TitleBar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -61,7 +62,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks,
+        EasyPermissions.RationaleCallbacks {
+    public static final String TAG = "MainActivity";
+    private static final String[] NEED_PERMISSION =
+            {Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR};
     public static final int FIRST = -1;
     public static final int WHAT_QUERY = 1;
     public static final int WHAT_QUERY_TODAY = 2;
@@ -186,41 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fab.hide();
-                int sort = todaySum;
-                long manifest = 0;
-                if (mClickPos != -1) {
-                    sort = mManifestList.get(mClickPos).num;
-                    manifest = mManifestList.get(mClickPos).id;
-                }
-                if (mBasePopupView == null) {
-                    mAddTodoPop = new AddTodoPopup(MainActivity.this, sort, manifest);
-                    mBasePopupView = new XPopup.Builder(MainActivity.this)
-                            .autoOpenSoftInput(true)
-                            .setPopupCallback(new XPopupCallback() {
-                                @Override
-                                public void onCreated() {
-
-                                }
-
-                                @Override
-                                public void onShow() {
-
-                                }
-
-                                @Override
-                                public void onDismiss() {
-                                    fab.show();
-                                }
-
-                                @Override
-                                public boolean onBackPressed() {
-                                    return false;
-                                }
-                            })
-                            .asCustom(mAddTodoPop);
-                }
-                mBasePopupView.show();
+                applyForRight();
             }
         });
 
@@ -589,6 +563,94 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
+    }
+
+    private boolean hasPermissions() {
+        return EasyPermissions.hasPermissions(this, NEED_PERMISSION);
+    }
+
+    public void applyForRight() {
+        if (hasPermissions()) {
+            fab.hide();
+            int sort = todaySum;
+            long manifest = 0;
+            if (mClickPos != -1) {
+                sort = mManifestList.get(mClickPos).num;
+                manifest = mManifestList.get(mClickPos).id;
+            }
+            if (mBasePopupView == null) {
+                mAddTodoPop = new AddTodoPopup(MainActivity.this, sort, manifest);
+                mBasePopupView = new XPopup.Builder(MainActivity.this)
+                        .autoOpenSoftInput(true)
+                        .setPopupCallback(new XPopupCallback() {
+                            @Override
+                            public void onCreated() {
+
+                            }
+
+                            @Override
+                            public void onShow() {
+
+                            }
+
+                            @Override
+                            public void onDismiss() {
+                                fab.show();
+                            }
+
+                            @Override
+                            public boolean onBackPressed() {
+                                return false;
+                            }
+                        })
+                        .asCustom(mAddTodoPop);
+            }
+            mBasePopupView.show();
+        } else {
+            // Ask for both permissions
+            EasyPermissions.requestPermissions(
+                    this,
+                    getString(R.string.request_permission),
+                    1,
+                    NEED_PERMISSION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            new AppSettingsDialog.Builder(this).build().show();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE) {
+            applyForRight();
+        }
+    }
+
+    @Override
+    public void onRationaleAccepted(int requestCode) {
+        applyForRight();
+    }
+
+    @Override
+    public void onRationaleDenied(int requestCode) {
+        
     }
 
     @Override
